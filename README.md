@@ -6,7 +6,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
      use HTML::GoogleMaps::V3
 
-     $map = HTML::GoogleMaps::V3->new(key => $map_key);
+     $map = HTML::GoogleMaps::V3->new;
      $map->center("1810 Melrose St, Madison, WI");
      $map->add_marker(point => "1210 W Dayton St, Madison, WI");
      $map->add_marker(point => [ 51, 0 ] );   # Greenwich
@@ -17,7 +17,8 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 This modules is forked from [HTML::GoogleMaps](https://metacpan.org/pod/HTML::GoogleMaps), it is a drop in
 replacement requiring no changes to your code other than adding the
-::V3 namespace
+::V3 namespace. Note that V3 of the API does not require an API key
+so any key passed to this module will be ignored
 
 # DESCRIPTION
 
@@ -28,12 +29,10 @@ up locations around the world without having to install a local database.
 
 # CONSTRUCTOR
 
-- $map = HTML::GoogleMaps::V3->new(key => $map\_key);
+- $map = HTML::GoogleMaps::V3->new;
 
-    Creates a new HTML::GoogleMaps::V3 object.  Takes a hash of options.  The
-    only required option is _key_, which is your Google Maps API key.
-    You can get a key at http://maps.google.com/apis/maps/signup.html .
-    Other valid options are:
+    Creates a new HTML::GoogleMaps::V3 object.  Takes a hash of options.
+    Valid options are:
 
     - height => height (in pixels or using your own unit)
     - width => width (in pixels or using your own unit)

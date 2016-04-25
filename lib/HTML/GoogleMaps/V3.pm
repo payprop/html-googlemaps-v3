@@ -6,7 +6,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
   use HTML::GoogleMaps::V3
 
-  $map = HTML::GoogleMaps::V3->new(key => $map_key);
+  $map = HTML::GoogleMaps::V3->new;
   $map->center("1810 Melrose St, Madison, WI");
   $map->add_marker(point => "1210 W Dayton St, Madison, WI");
   $map->add_marker(point => [ 51, 0 ] );   # Greenwich
@@ -17,7 +17,8 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 This modules is forked from L<HTML::GoogleMaps>, it is a drop in
 replacement requiring no changes to your code other than adding the
-::V3 namespace
+::V3 namespace. Note that V3 of the API does not require an API key
+so any key passed to this module will be ignored
 
 =head1 DESCRIPTION
 
@@ -30,12 +31,10 @@ up locations around the world without having to install a local database.
 
 =over 4
 
-=item $map = HTML::GoogleMaps::V3->new(key => $map_key);
+=item $map = HTML::GoogleMaps::V3->new;
 
-Creates a new HTML::GoogleMaps::V3 object.  Takes a hash of options.  The
-only required option is I<key>, which is your Google Maps API key.
-You can get a key at http://maps.google.com/apis/maps/signup.html .
-Other valid options are:
+Creates a new HTML::GoogleMaps::V3 object.  Takes a hash of options.
+Valid options are:
 
 =over 4
 
@@ -165,9 +164,6 @@ our $VERSION = '0.01';
 sub new {
   my ($class, %opts) = @_;
 
-  die "Need a map key?  Go to http://www.google.com/apis/maps/signup.html\n"
-    unless $opts{key};
-
   if ($opts{db}) {
     require Geo::Coder::US;
     Geo::Coder::US->set_db($opts{db});
@@ -177,7 +173,7 @@ sub new {
     %opts,
     points => [],
     poly_lines => [],
-    geocoder => Geo::Coder::Google->new(apikey => $opts{key}),
+    geocoder => Geo::Coder::Google->new,
   }, $class;
 }
 
@@ -363,9 +359,8 @@ sub onload_render {
   }
 
   my $header = sprintf(
-    '<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=%s" '
-      . 'type="text/javascript"></script>',
-    $this->{key},
+    '<script src="http://maps.google.com/maps?file=api&amp;v=2&amp" '
+      . 'type="text/javascript"></script>'
   );
   my $map = sprintf(
     '<div id="%s" style="width: %s; height: %s"></div>',
