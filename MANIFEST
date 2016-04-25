@@ -1,8 +1,10 @@
 Changes
-lib/HTML/GoogleMaps.pm
+lib/HTML/GoogleMaps/V3.pm
 Makefile.PL
-MANIFEST			This list of files
+MANIFEST
 out.html
-README
+README.md
 t/HTML-GoogleMaps.t
-META.yml                                 Module meta-data (added by MakeMaker)
+t/001_compiles_pod.t
+t/003_changes.t
+META.yml

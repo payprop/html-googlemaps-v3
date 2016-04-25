@@ -10,7 +10,7 @@ WriteMakefile(
       'Geo::Coder::Google' => .16,
     },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/HTML/GoogleMaps.pm',
+      (ABSTRACT_FROM  => 'lib/HTML/GoogleMaps/V3.pm',
        AUTHOR         => 'Lee Johnson <leejo@cpan.org>') : ()),
     (
         $mm < 6.46

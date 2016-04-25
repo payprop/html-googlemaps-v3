@@ -15,8 +15,9 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 NOTE
 
-This version is not API compatable with HTML::GoogleMaps::V3 versions 1
-and 2.  The render method now returns three values instead of two.
+This modules is forked from L<HTML::GoogleMaps>, it is a drop in
+replacement requiring no changes to your code other than adding the
+::V3 namespace
 
 =head1 DESCRIPTION
 

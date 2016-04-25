@@ -94,7 +94,8 @@ use HTML::GoogleMaps::V3;
   my $stub_loc;
   my $map = HTML::GoogleMaps::V3->new(key => 'foo');
   no warnings 'redefine';
-  *Geo::Coder::Google::geocode::V3 = sub { +{Point => {coordinates => $stub_loc}} };
+  no warnings 'once';
+  *Geo::Coder::Google::V3::geocode = sub { +{Point => {coordinates => $stub_loc}} };
     
   $stub_loc = [3463, 3925, 0];
   $map->add_marker(point => 'result_democritean');
