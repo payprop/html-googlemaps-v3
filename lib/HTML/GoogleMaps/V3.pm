@@ -15,10 +15,13 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 NOTE
 
-This modules is forked from L<HTML::GoogleMaps>, it is a drop in
-replacement requiring no changes to your code other than adding the
-::V3 namespace. Note that V3 of the API does not require an API key
-so any key passed to this module will be ignored
+This modules is forked from L<HTML::GoogleMaps>, it is an almost drop in
+replacement requiring minimal changes to your code other than adding the ::V3
+namespace. If you are using the deprecated ->render method you should change
+this to ->onload_render as this version of the module removes ->render
+
+Note that V3 of the API does not require an API key so any key passed to this
+module will be ignored
 
 =head1 DESCRIPTION
 
@@ -112,17 +115,6 @@ just pass B<noformat> => 1 as well.
 Add a polyline that connects the list of points.  Other options
 include B<color> (any valid HTML color), B<weight> (line width in
 pixels) and B<opacity> (between 0 and 1).
-
-=item $map->render
-
-B<DEPRECATED -- please use onload_render intead, it will give you
-better javascript.>
-
-Renders the map and returns a three element list.  The first element
-needs to be placed in the head section of your HTML document.  The
-second in the body where you want the map to appear.  The third (the 
-Javascript that controls the map) needs to be placed in the body,
-but outside any div or table that the map lies inside of.
 
 =item $map->onload_render
 
@@ -464,15 +456,6 @@ SCRIPT
     </script>";
 
   return ($header, $map);
-}
-
-sub render {
-  my ($this) = @_;
-  my ($header, $map) = $this->onload_render;
-  ($header, my $text) = split(/\n/, $header, 2);
-  $text =~ s/(.*})/$1\n  html_googlemaps_initialize();/s;
-
-  return ($header, $map, $text);
 }
 
 1;

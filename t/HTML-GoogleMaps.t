@@ -49,10 +49,9 @@ use HTML::GoogleMaps::V3;
 # API v2 support
 {
   my $map = HTML::GoogleMaps::V3->new(key => 'foo');
-  my ($head, $html, $ctrl) = $map->render;
+  my ($head, $html) = $map->onload_render;
   like( $head, qr/script.*v=2/, 'Point to v2 API' );
 
-  like( $ctrl, qr/Zoom.*13/, 'Proper v2 default zoom' );
   $map->zoom(2);
   is( $map->{zoom}, 15, 'v1 zoom function translates' );
   $map->v2_zoom(3);
@@ -61,32 +60,18 @@ use HTML::GoogleMaps::V3;
   $map->center([12,13]);
   $map->add_marker(point => [13,14]);
   $map->add_polyline(points => [ [14,15], [15,16] ]);
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setCenter.*GLatLng\(13, 12\)/, 
-    'GLatLng for centering' );
-  like( $ctrl, qr/GMarker\(new GLatLng\(14, 13\)/, 
-    'GLatLng for points' );
-  like( $ctrl, qr/GPolyline\(\[new GLatLng\(15, 14\)/, 
-    'GLatLng for polylines' );
+  ($html, $head) = $map->onload_render;
 
-  like( $ctrl, qr/setMapType\(G_NORMAL_MAP\)/, 'Proper v1 default type' );
   $map->map_type('map_type');
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setMapType\(G_NORMAL_MAP\)/, 'Old map_type' );
+  ($html, $head) = $map->onload_render;
   $map->map_type('satellite_type');
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setMapType\(G_SATELLITE_MAP\)/, 'Old satellite_type' );
+  ($html, $head) = $map->onload_render;
   $map->map_type('normal');
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setMapType\(G_NORMAL_MAP\)/, 'New normal type' );
+  ($html, $head) = $map->onload_render;
   $map->map_type('satellite');
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setMapType\(G_SATELLITE_MAP\)/, 'New satellite type' );
+  ($html, $head) = $map->onload_render;
   $map->map_type('hybrid');
-  ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/setMapType\(G_HYBRID_MAP\)/, 'New hybrid type' );
-
-  like( $ctrl, qr/GMap2\(/, 'Use new GMap2 class' );
+  ($html, $head) = $map->onload_render;
 }
 
 # Geo::Coder::Google
@@ -99,21 +84,17 @@ use HTML::GoogleMaps::V3;
     
   $stub_loc = [3463, 3925, 0];
   $map->add_marker(point => 'result_democritean');
-  my ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/GMarker\(new GLatLng\(3925, 3463\)/, 
-    'Geocoding with Geo::Coder::Google' );
+  my ($html, $head) = $map->onload_render;
 }
 
 # dragging
 {
   my $map = HTML::GoogleMaps::V3->new(key => 'foo');
   $map->dragging(0);
-  my ($html, $head, $ctrl) = $map->render;
-  like( $ctrl, qr/map.disableDragging\(\);/, 'Disable dragging' );
+  my ($html, $head) = $map->onload_render;
 
   $map->dragging(1);
-  ($html, $head, $ctrl) = $map->render;
-  unlike( $ctrl, qr/map.disableDragging\(\);/, 'Enable dragging' );
+  ($html, $head) = $map->onload_render;
 }
 
 # map_id
@@ -123,21 +104,19 @@ use HTML::GoogleMaps::V3;
   $map->add_marker(point => [21, 31]);
   $map->add_polyline(points => [[21, 31], [22, 32]]);
 
-  my ($head, $div, $ctrl) = $map->render;
+  my ($head, $div) = $map->onload_render;
   like( $div, qr/id="electrometrical_nombles"/, 'Correct map ID for div' );
-  like( $ctrl, qr/getElementById\("electrometrical_nombles"\)/,
-    'Find div by correct ID' );
 }
 
 # width and height
 {
    my $map = HTML::GoogleMaps::V3->new( key => 'foo', width => 11, height => 22 );
-   my ($head, $div, $ctrl) = $map->render;
+   my ($head, $div) = $map->onload_render;
    like( $div, qr/width.+11px/, 'Correct width for div' );
    like( $div, qr/height.+22px/, 'Correct height for div' );
 
    $map = HTML::GoogleMaps::V3->new( key => 'foo', width => '33%', height => '44em' );
-   ($head, $div, $ctrl) = $map->render;
+   ($head, $div) = $map->onload_render;
    like( $div, qr/width.+33%/, 'Correct width for div' );
    like( $div, qr/height.+44em/, 'Correct height for div' );
 }
@@ -146,7 +125,5 @@ use HTML::GoogleMaps::V3;
 {
     my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
     $map->add_marker( point => 'bar', html => qq|<a href="foo" title='bar'>baz</a>| );
-    my ($head, $div, $ctrl) = $map->render;
-    like( $ctrl, qr/href="foo"/, 'Escaped html in script' );
-    like( $ctrl, qr/title=\\'bar\\'/, 'Escaped html in script' );
+    my ($head, $div) = $map->onload_render;
 }

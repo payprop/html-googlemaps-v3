@@ -15,10 +15,13 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # NOTE
 
-This modules is forked from [HTML::GoogleMaps](https://metacpan.org/pod/HTML::GoogleMaps), it is a drop in
-replacement requiring no changes to your code other than adding the
-::V3 namespace. Note that V3 of the API does not require an API key
-so any key passed to this module will be ignored
+This modules is forked from [HTML::GoogleMaps](https://metacpan.org/pod/HTML::GoogleMaps), it is an almost drop in
+replacement requiring minimal changes to your code other than adding the ::V3
+namespace. If you are using the deprecated ->render method you should change
+this to ->onload\_render as this version of the module removes ->render
+
+Note that V3 of the API does not require an API key so any key passed to this
+module will be ignored
 
 # DESCRIPTION
 
@@ -101,17 +104,6 @@ up locations around the world without having to install a local database.
     Add a polyline that connects the list of points.  Other options
     include **color** (any valid HTML color), **weight** (line width in
     pixels) and **opacity** (between 0 and 1).
-
-- $map->render
-
-    **DEPRECATED -- please use onload\_render intead, it will give you
-    better javascript.**
-
-    Renders the map and returns a three element list.  The first element
-    needs to be placed in the head section of your HTML document.  The
-    second in the body where you want the map to appear.  The third (the 
-    Javascript that controls the map) needs to be placed in the body,
-    but outside any div or table that the map lies inside of.
 
 - $map->onload\_render
 
