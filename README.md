@@ -2,6 +2,16 @@
 
 HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
+<div>
+
+    <a href='https://travis-ci.org/G3S/html-googlemaps-v3?branch=master'><img src='https://travis-ci.org/G3S/html-googlemaps-v3.svg?branch=master' alt='Build Status' /></a>
+    <a href='https://coveralls.io/r/G3S/html-googlemaps-v3?branch=master'><img src='https://coveralls.io/repos/G3S/html-googlemaps-v3/badge.png?branch=master' alt='Coverage Status' /></a>
+</div>
+
+# VERSION
+
+0.01
+
 # SYNOPSIS
 
      use HTML::GoogleMaps::V3
