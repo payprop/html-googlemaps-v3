@@ -1,10 +1,11 @@
 Changes
-lib/HTML/GoogleMaps/V3.pm
-Makefile.PL
 MANIFEST
-out.html
+META.yml
+Makefile.PL
 README.md
-t/HTML-GoogleMaps.t
+examples/output_map.pl
+lib/HTML/GoogleMaps/V3.pm
+out.html
 t/001_compiles_pod.t
 t/003_changes.t
-META.yml
+t/HTML-GoogleMaps.t
