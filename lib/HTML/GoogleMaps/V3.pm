@@ -8,7 +8,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 VERSION
 
-0.01
+0.02
 
 =head1 SYNOPSIS
 
@@ -159,7 +159,7 @@ package HTML::GoogleMaps::V3;
 use strict;
 use Geo::Coder::Google;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
   my ($class, %opts) = @_;

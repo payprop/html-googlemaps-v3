@@ -113,6 +113,10 @@ use HTML::GoogleMaps::V3;
   my ($head, $div) = $map->onload_render;
   like( $head, qr/getElementById\("electrometrical_nombles"\)/, 'Correct map ID for getElementById' );
   like( $div, qr/id="electrometrical_nombles"/, 'Correct map ID for div' );
+
+  ok( $map->add_polyline( color => '#0000ff', points => [[21, 31], [22, 32]]) );
+  ok( $map->add_polyline( weight => 10, points => [[21, 31], [22, 32]]) );
+  ok( $map->add_polyline( opacity => .3, points => [[21, 31], [22, 32]]) );
 }
 
 # width and height
@@ -134,4 +138,18 @@ use HTML::GoogleMaps::V3;
     $map->add_marker( point => 'bar', html => qq|<a href="foo" title='bar'>baz</a>| );
     my ($head, $div) = $map->onload_render;
     like( $head, qr/marker_1\.openInfoWindowHtml/, 'openInfoWindowHtml' );
+}
+
+# missing coverage
+{
+    my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
+    is( $map->controls( 'large_map_control' )->[0],'large_map_control','controls' );
+    is( $map->info_window( 'foo' ),'foo','info_window' );
+    ok( $map->add_icon( image => 'foo', shadow => 'bar', name => 'baz' ),'add_icon' );
+    ok( !$map->add_icon( shadow => 'bar', name => 'baz' ),'add_icon' );
+    ok( !$map->add_icon( image => 'foo',  name => 'baz' ),'add_icon' );
+    ok( !$map->add_icon( image => 'foo', shadow => 'bar' ),'add_icon' );
+
+    $map->{points} = [ { point => [ -100,-100 ] } ];
+    ok( $map->_find_center,'_find_center' );
 }
