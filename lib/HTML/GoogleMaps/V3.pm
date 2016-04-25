@@ -144,7 +144,7 @@ L<http://geocoder.us>
 
 =head1 BUGS
 
-Address bug reports and comments to: L<https://github.com/leejo/html-googlemaps-v3/issues>
+Address bug reports and comments to: L<https://github.com/G3S/html-googlemaps-v3/issues>
 
 =head1 AUTHORS
 

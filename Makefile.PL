@@ -20,8 +20,8 @@ WriteMakefile(
                 requires  => { perl => '5.005' },
                 resources => {
                     homepage   => 'https://metacpan.org/module/HTML/GoogleMaps/V3',
-                    repository => 'https://github.com/leejo/html-googlemaps-v3',
-                    bugtracker => 'https://github.com/leejo/html-googlemaps-v3/issues',
+                    repository => 'https://github.com/G3S/html-googlemaps-v3',
+                    bugtracker => 'https://github.com/G3S/html-googlemaps-v3/issues',
                 },
                 no_index => { directory => [qw/t/] },
             },

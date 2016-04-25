@@ -133,7 +133,7 @@ up locations around the world without having to install a local database.
 
 # BUGS
 
-Address bug reports and comments to: [https://github.com/leejo/html-googlemaps-v3/issues](https://github.com/leejo/html-googlemaps-v3/issues)
+Address bug reports and comments to: [https://github.com/G3S/html-googlemaps-v3/issues](https://github.com/G3S/html-googlemaps-v3/issues)
 
 # AUTHORS
 
