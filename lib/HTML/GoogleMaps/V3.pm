@@ -15,7 +15,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 NOTE
 
-This modules is forked from L<HTML::GoogleMaps>, it is an almost drop in
+This module is forked from L<HTML::GoogleMaps>, it is an almost drop in
 replacement requiring minimal changes to your code other than adding the ::V3
 namespace. If you are using the deprecated ->render method you should change
 this to ->onload_render as this version of the module removes ->render
@@ -26,8 +26,8 @@ module will be ignored
 =head1 DESCRIPTION
 
 HTML::GoogleMaps::V3 provides a simple wrapper around the Google Maps
-API.  It allows you to easily create maps with markers, polylines and
-information windows.  Thanks to Geo::Coder::Google you can now look
+API. It allows you to easily create maps with markers, polylines and
+information windows. Thanks to Geo::Coder::Google you can now look
 up locations around the world without having to install a local database.
 
 =head1 CONSTRUCTOR
@@ -36,7 +36,7 @@ up locations around the world without having to install a local database.
 
 =item $map = HTML::GoogleMaps::V3->new;
 
-Creates a new HTML::GoogleMaps::V3 object.  Takes a hash of options.
+Creates a new HTML::GoogleMaps::V3 object. Takes a hash of options.
 Valid options are:
 
 =over 4
@@ -63,7 +63,7 @@ Set the new zoom level (0 is corsest)
 
 =item $map->controls($control1, $control2)
 
-Enable the given controls.  Valid controls are: B<large_map_control>,
+Enable the given controls. Valid controls are: B<large_map_control>,
 B<small_map_control>, B<small_zoom_control> and B<map_type_control>.
 
 =item $map->dragging($enable)
@@ -76,7 +76,7 @@ Enable or disable info windows.
 
 =item $map->map_type($type)
 
-Set the map type.  Either B<normal>, B<satellite> or B<hybrid>.  The
+Set the map type. Either B<normal>, B<satellite> or B<hybrid>. The
 v1 API B<map_type> or B<satellite_type> still work, but may be dropped
 in a future version.
 
@@ -92,7 +92,7 @@ Set the id of the map div
                      icon_anchor => [ $x, $y ],
                      info_window_anchor => [ $x, $y ]);
 
-Adds a new icon, which can later be used by add_marker.  All args
+Adds a new icon, which can later be used by add_marker. All args
 are required except for info_window_anchor.
 
 =item $map->add_marker(point => $point, html => $info_window_html)
@@ -102,27 +102,27 @@ place name, like an address, or a pair of coordinates passed in as
 an arrayref: [ longituded, latitude ].
 
 If B<html> is specified,
-add a popup info window as well.  B<icon> can be used to switch to
+add a popup info window as well. B<icon> can be used to switch to
 either a user defined icon (via the name) or a standard google letter
 icon (A-J).
 
 Any data given for B<html> is placed inside a 350px by 200px div to
-make it fit nicely into the Google popup.  To turn this behavior off 
+make it fit nicely into the Google popup. To turn this behavior off 
 just pass B<noformat> => 1 as well.
 
 =item $map->add_polyline(points => [ $point1, $point2 ])
 
-Add a polyline that connects the list of points.  Other options
+Add a polyline that connects the list of points. Other options
 include B<color> (any valid HTML color), B<weight> (line width in
 pixels) and B<opacity> (between 0 and 1).
 
 =item $map->onload_render
 
-Renders the map and returns a two element list.  The first element
-needs to be placed in the head section of your HTML document.  The
-second in the body where you want the map to appear.  You will also 
+Renders the map and returns a two element list. The first element
+needs to be placed in the head section of your HTML document. The
+second in the body where you want the map to appear. You will also 
 need to add a call to html_googlemaps_initialize() in your page's 
-onload handler.  The easiest way to do this is adding it to the body
+onload handler. The easiest way to do this is adding it to the body
 tag:
 
     <body onload="html_googlemaps_initialize()">
@@ -156,11 +156,6 @@ our $VERSION = '0.01';
 sub new {
   my ($class, %opts) = @_;
 
-  if ($opts{db}) {
-    require Geo::Coder::US;
-    Geo::Coder::US->set_db($opts{db});
-  }
-    
   bless {
     %opts,
     points => [],
@@ -175,17 +170,11 @@ sub _text_to_point {
   # IE, already a long/lat pair
   return [reverse @$point_text] if ref($point_text) eq "ARRAY";
 
-  # US street address
-  if ($this->{db}) {
-    my ($point) = Geo::Coder::US->geocode($point_text);
-    if ($point->{lat}) {
-      return [$point->{lat}, $point->{long}];
-    }
-  } else {
-    my $location = $this->{geocoder}->geocode(location => $point_text);
+  if ( my @locations = $this->{geocoder}->geocode(location => $point_text) ) {
+	my $location = $locations[0];
     return [
-      $location->{Point}{coordinates}[1],
-      $location->{Point}{coordinates}[0],
+      $location->{geometry}{location}{lat},
+      $location->{geometry}{location}{lng},
     ];
   }
   
@@ -203,15 +192,15 @@ sub _find_center {
   my $total_long;
   my $total_abs_long;
   foreach my $point (@{$this->{points}}) {
-    $total_lat += $point->{point}[0];
-    $total_long += $point->{point}[1];
-    $total_abs_long += abs($point->{point}[1]);
+    $total_lat += defined $point->{point}[0] ? $point->{point}[0] : 0;
+    $total_long += defined $point->{point}[1] ? $point->{point}[1] : 0;
+    $total_abs_long += abs(defined $point->{point}[1] ? $point->{point}[1] : 0);
   }
     
   # Latitude is easy, just an average
   my $center_lat = $total_lat/@{$this->{points}};
     
-  # Longitude, on the other hand, is trickier.  If points are
+  # Longitude, on the other hand, is trickier. If points are
   # clustered around the international date line a raw average
   # would produce a center around longitude 0 instead of -180.
   my $avg_long = $total_long/@{$this->{points}};
@@ -351,7 +340,7 @@ sub onload_render {
   }
 
   my $header = sprintf(
-    '<script src="http://maps.google.com/maps?file=api&amp;v=2&amp" '
+    '<script src="http://maps.google.com/maps?file=api&v=3" '
       . 'type="text/javascript"></script>'
   );
   my $map = sprintf(
@@ -434,7 +423,10 @@ SCRIPT
       );
     }
 
-    $header .= "      var marker_$i = new GMarker(new GLatLng($point->{point}[0], $point->{point}[1]) $icon);\n";
+    my ( $lat,$lng ) = ( $point->{point}[0],$point->{point}[1] );
+	$lat = defined $lat ? $lat : 0;
+	$lng = defined $lng ? $lng : 0;
+    $header .= "      var marker_$i = new GMarker(new GLatLng($lat, $lng) $icon);\n";
     if ( $point->{html} ) {
         $point_html =~ s/'/\\'/g;
     $header .= "      GEvent.addListener(marker_$i, \"click\", function () {  marker_$i.openInfoWindowHtml('$point_html'); });\n"
