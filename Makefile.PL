@@ -23,6 +23,11 @@ WriteMakefile(
             homepage   => 'https://metacpan.org/module/HTML/GoogleMaps/V3',
             bugtracker => 'https://github.com/G3S/html-googlemaps-v3/issues',
         },
+        repository => {
+            type => 'git',
+            url  => 'https://github.com/G3S/html-googlemaps-v3.git',
+            web  => 'https://github.com/G3S/html-googlemaps-v3',
+        },
     },
     test => {
         RECURSIVE_TEST_FILES => 1,
