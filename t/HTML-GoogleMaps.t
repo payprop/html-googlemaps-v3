@@ -2,7 +2,6 @@
 
 use Test::More 'no_plan';
 use strict;
-use blib;
 
 BEGIN { use_ok('HTML::GoogleMaps::V3') }
 use HTML::GoogleMaps::V3;

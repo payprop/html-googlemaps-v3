@@ -1,34 +1,32 @@
-use ExtUtils::MakeMaker;
-my $mm = $ExtUtils::MakeMaker::VERSION;
+#!perl
 
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+use strict;
+use warnings;
+
+use ExtUtils::MakeMaker;
+
 WriteMakefile(
-    NAME              => 'HTML::GoogleMaps::V3',
-    VERSION_FROM      => 'lib/HTML/GoogleMaps/V3.pm',
-    PREREQ_PM         => {
+    NAME             => 'HTML::GoogleMaps::V3',
+    VERSION_FROM     => 'lib/HTML/GoogleMaps/V3.pm',
+    AUTHOR           => 'Lee Johnson <leejo@cpan.org>',
+    LICENSE          => 'perl',
+    MIN_PERL_VERSION => '5.005',
+    PREREQ_PM => {
       'Geo::Coder::Google' => .16,
     },
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/HTML/GoogleMaps/V3.pm',
-       AUTHOR         => 'Lee Johnson <leejo@cpan.org>') : ()),
-    (
-        $mm < 6.46
-        ? ()
-        : (
-            META_MERGE => {
-                requires  => { perl => '5.005' },
-                resources => {
-                    homepage   => 'https://metacpan.org/module/HTML/GoogleMaps/V3',
-                    repository => 'https://github.com/G3S/html-googlemaps-v3',
-                    bugtracker => 'https://github.com/G3S/html-googlemaps-v3/issues',
-                },
-                no_index => { directory => [qw/t/] },
-            },
-            META_ADD => {
-                build_requires     => {},
-                configure_requires => {}
-            },
-        )
-    ),
+    TEST_REQUIRES => {
+        'Test::More'       => 1.001014,
+    },
+    META_MERGE => {
+        resources => {
+            license    => 'http://dev.perl.org/licenses/',
+            homepage   => 'https://metacpan.org/module/HTML/GoogleMaps/V3',
+            bugtracker => 'https://github.com/G3S/html-googlemaps-v3/issues',
+        },
+    },
+    test => {
+        RECURSIVE_TEST_FILES => 1,
+    },
 );
+
+# vim: ts=4:sw=4:et
