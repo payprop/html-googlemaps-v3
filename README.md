@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # VERSION
 
-0.02
+0.03
 
 # SYNOPSIS
 
@@ -125,11 +125,6 @@ up locations around the world without having to install a local database.
     tag:
 
         <body onload="html_googlemaps_initialize()">
-
-# SEE ALSO
-
-[http://www.google.com/apis/maps](http://www.google.com/apis/maps)
-[http://geocoder.us](http://geocoder.us)
 
 # BUGS
 

@@ -8,7 +8,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 VERSION
 
-0.02
+0.03
 
 =head1 SYNOPSIS
 
@@ -137,11 +137,6 @@ tag:
 
 =back
 
-=head1 SEE ALSO
-
-L<http://www.google.com/apis/maps>
-L<http://geocoder.us>
-
 =head1 BUGS
 
 Address bug reports and comments to: L<https://github.com/G3S/html-googlemaps-v3/issues>
@@ -159,7 +154,7 @@ package HTML::GoogleMaps::V3;
 use strict;
 use Geo::Coder::Google;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
   my ($class, %opts) = @_;
