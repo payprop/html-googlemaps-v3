@@ -28,8 +28,8 @@ replacement requiring minimal changes to your code other than adding the ::V3
 namespace. If you are using the deprecated ->render method you should change
 this to ->onload_render as this version of the module removes ->render
 
-Note that V3 of the API does not require an API key so any key passed to this
-module will be ignored
+Note that V3 of the API does not require an API key, however you can pass
+one and it will be used (useful for analytics).
 
 =head1 DESCRIPTION
 
@@ -48,6 +48,8 @@ Creates a new HTML::GoogleMaps::V3 object. Takes a hash of options.
 Valid options are:
 
 =over 4
+
+=item api_key => key (your Google Maps API key)
 
 =item height => height (in pixels or using your own unit)
 
@@ -342,10 +344,15 @@ sub onload_render {
       $this->{height} .= 'px';
   }
 
-  my $header = sprintf(
-    '<script src="http://maps.google.com/maps?file=api&v=3" '
+  my $header = '<script src="http://maps.google.com/maps?file=api&v=3__KEY__" '
       . 'type="text/javascript"></script>'
-  );
+  ;
+
+  my $key = $this->{api_key}
+    ? "&key=@{[ $this->{api_key} ]}" : "";
+
+  $header =~ s/__KEY__/$key/;
+
   my $map = sprintf(
     '<div id="%s" style="width: %s; height: %s"></div>',
     $this->{id},
