@@ -10,28 +10,31 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # VERSION
 
-0.03
+0.04
 
 # SYNOPSIS
 
-     use HTML::GoogleMaps::V3
+    use HTML::GoogleMaps::V3
 
-     $map = HTML::GoogleMaps::V3->new;
-     $map->center("1810 Melrose St, Madison, WI");
-     $map->add_marker(point => "1210 W Dayton St, Madison, WI");
-     $map->add_marker(point => [ 51, 0 ] );   # Greenwich
-    
-     my ($head, $map_div) = $map->onload_render;
+    $map = HTML::GoogleMaps::V3->new;
+    $map->center("1810 Melrose St, Madison, WI");
+    $map->add_marker(point => "1210 W Dayton St, Madison, WI");
+    $map->add_marker(point => [ 51, 0 ] );   # Greenwich
+
+    my ($head, $map_div) = $map->onload_render;
 
 # NOTE
 
-This module is forked from [HTML::GoogleMaps](https://metacpan.org/pod/HTML::GoogleMaps), it is an almost drop in
-replacement requiring minimal changes to your code other than adding the ::V3
-namespace. If you are using the deprecated ->render method you should change
-this to ->onload\_render as this version of the module removes ->render
+This module is forked from [HTML::GoogleMaps](https://metacpan.org/pod/HTML::GoogleMaps) and updated to use V3 of
+the API. Note that the module isn't quite a drop in replacement, although
+it should be trivial to update your code to use it.
 
-Note that V3 of the API does not require an API key so any key passed to this
-module will be ignored
+Note that V3 of the API does not require an API key, however you can pass
+one and it will be used (useful for analytics).
+
+Also note that this library only implements a subset of the functionality
+available in the maps API, if you want more then raise an issue or create
+a pull request.
 
 # DESCRIPTION
 
@@ -47,6 +50,7 @@ up locations around the world without having to install a local database.
     Creates a new HTML::GoogleMaps::V3 object. Takes a hash of options.
     Valid options are:
 
+    - api\_key => key (your Google Maps API key)
     - height => height (in pixels or using your own unit)
     - width => width (in pixels or using your own unit)
 
@@ -56,14 +60,9 @@ up locations around the world without having to install a local database.
 
     Center the map at a given point.
 
-- $map->v2\_zoom($level)
+- $map->zoom($level)
 
     Set the new zoom level (0 is corsest)
-
-- $map->controls($control1, $control2)
-
-    Enable the given controls. Valid controls are: **large\_map\_control**,
-    **small\_map\_control**, **small\_zoom\_control** and **map\_type\_control**.
 
 - $map->dragging($enable)
 
@@ -73,41 +72,21 @@ up locations around the world without having to install a local database.
 
     Enable or disable info windows.
 
-- $map->map\_type($type)
-
-    Set the map type. Either **normal**, **satellite** or **hybrid**. The
-    v1 API **map\_type** or **satellite\_type** still work, but may be dropped
-    in a future version.
-
 - $map->map\_id($id)
 
     Set the id of the map div
 
-- $map->add\_icon(name => $icon\_name,
-                     image => $image\_url,
-                     shadow => $shadow\_url,
-                     icon\_size => \[ $width, $height \],
-                     shadow\_size => \[ $width, $height \],
-                     icon\_anchor => \[ $x, $y \],
-                     info\_window\_anchor => \[ $x, $y \]);
+- $map->map\_type($type)
 
-    Adds a new icon, which can later be used by add\_marker. All args
-    are required except for info\_window\_anchor.
+    Set the map type. Either **normal**, **satellite**, **road**, or **hybrid**.
 
 - $map->add\_marker(point => $point, html => $info\_window\_html)
 
     Add a marker to the map at the given point. A point can be a unique
     place name, like an address, or a pair of coordinates passed in as
-    an arrayref: \[ longituded, latitude \].
+    an arrayref: \[ longitude, latitude \].
 
-    If **html** is specified,
-    add a popup info window as well. **icon** can be used to switch to
-    either a user defined icon (via the name) or a standard google letter
-    icon (A-J).
-
-    Any data given for **html** is placed inside a 350px by 200px div to
-    make it fit nicely into the Google popup. To turn this behavior off 
-    just pass **noformat** => 1 as well.
+    If **html** is specified, add a popup info window as well.
 
 - $map->add\_polyline(points => \[ $point1, $point2 \])
 
@@ -126,12 +105,16 @@ up locations around the world without having to install a local database.
 
         <body onload="html_googlemaps_initialize()">
 
+# SEE ALSO
+
+[https://developers.google.com/maps/documentation/javascript/3.exp/reference](https://developers.google.com/maps/documentation/javascript/3.exp/reference)
+
 # BUGS
 
 Address bug reports and comments to: [https://github.com/G3S/html-googlemaps-v3/issues](https://github.com/G3S/html-googlemaps-v3/issues)
 
 # AUTHORS
 
-Nate Mueller <nate@cs.wisc.edu> - Original Author
+Nate Mueller &lt;nate@cs.wisc.edu> - Original Author
 
-Lee Johnson <leejo@cpan.org> - Maintainer of this fork
+Lee Johnson &lt;leejo@cpan.org> - Maintainer of this fork
