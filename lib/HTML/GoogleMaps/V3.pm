@@ -18,7 +18,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
   $map->center("1810 Melrose St, Madison, WI");
   $map->add_marker(point => "1210 W Dayton St, Madison, WI");
   $map->add_marker(point => [ 51, 0 ] );   # Greenwich
- 
+
   my ($head, $map_div) = $map->onload_render;
 
 =head1 NOTE
@@ -159,305 +159,294 @@ use Geo::Coder::Google;
 our $VERSION = '0.03';
 
 sub new {
-  my ($class, %opts) = @_;
+    my ( $class,%opts ) = @_;
 
-  bless {
-    %opts,
-    points => [],
-    poly_lines => [],
-    geocoder => Geo::Coder::Google->new,
-  }, $class;
+    return bless( {
+        %opts,
+        points     => [],
+        poly_lines => [],
+        geocoder   => Geo::Coder::Google->new,
+    }, $class );
 }
 
 sub _text_to_point {
-  my ($this, $point_text) = @_;
+    my ( $self,$point_text ) = @_;
 
-  # IE, already a long/lat pair
-  return [reverse @$point_text] if ref($point_text) eq "ARRAY";
+    # IE, already a long/lat pair
+    return [ reverse @$point_text ] if ref( $point_text ) eq "ARRAY";
 
-  if ( my @locations = $this->{geocoder}->geocode(location => $point_text) ) {
-	my $location = $locations[0];
-    return [
-      $location->{geometry}{location}{lat},
-      $location->{geometry}{location}{lng},
-    ];
-  }
-  
-  # Unknown
-  return 0;
+    if ( my @loc = $self->{geocoder}->geocode( location => $point_text ) ) {
+        if ( my $location = $loc[0] ) {
+            return [
+                $location->{geometry}{location}{lat},
+                $location->{geometry}{location}{lng},
+            ];
+        }
+    }
+
+    # Unknown
+    return 0;
 }
 
 sub _find_center {
-  my ($this) = @_;
+    my ( $self ) = @_;
 
-  # Null case
-  return unless @{$this->{points}};
+    # Null case
+    return unless @{$self->{points}};
 
-  my $total_lat;
-  my $total_long;
-  my $total_abs_long;
-  foreach my $point (@{$this->{points}}) {
-    $total_lat += defined $point->{point}[0] ? $point->{point}[0] : 0;
-    $total_long += defined $point->{point}[1] ? $point->{point}[1] : 0;
-    $total_abs_long += abs(defined $point->{point}[1] ? $point->{point}[1] : 0);
-  }
-    
-  # Latitude is easy, just an average
-  my $center_lat = $total_lat/@{$this->{points}};
-    
-  # Longitude, on the other hand, is trickier. If points are
-  # clustered around the international date line a raw average
-  # would produce a center around longitude 0 instead of -180.
-  my $avg_long = $total_long/@{$this->{points}};
-  my $avg_abs_long = $total_abs_long/@{$this->{points}};
-  return [ $center_lat, $avg_long ] # All points are on the
-    if abs($avg_long) == $avg_abs_long; # same hemasphere
+    my ( $total_lat,$total_lng,$total_abs_lng );
 
-  if ($avg_abs_long > 90) {      # Closer to the IDL
-    if ($avg_long < 0 && abs($avg_long) <= 90) {
-      $avg_long += 180;
-    } elsif (abs($avg_long) <= 90) {
-      $avg_long -= 180;
+    foreach ( @{$self->{points}} ) {
+        my ( $lat,$lng ) = @{ $_->{point} };
+        $total_lat     += defined $lat ? $lat : 0;
+        $total_lng     += defined $lng ? $lng : 0;
+        $total_abs_lng += abs( defined $lng ? $lng : 0 );
     }
-  }
 
-  return [$center_lat, $avg_long];
+    # Latitude is easy, just an average
+    my $center_lat = $total_lat/@{$self->{points}};
+
+    # Longitude, on the other hand, is trickier. If points are
+    # clustered around the international date line a raw average
+    # would produce a center around longitude 0 instead of -180.
+    my $avg_lng     = $total_lng/@{$self->{points}};
+    my $avg_abs_lng = $total_abs_lng/@{$self->{points}};
+
+    return [ $center_lat,$avg_lng ] # All points are on the
+        if abs( $avg_lng ) == $avg_abs_lng; # same hemasphere
+
+    if ( $avg_abs_lng > 90 ) { # Closer to the IDL
+        if ( $avg_lng < 0 && abs( $avg_lng ) <= 90) {
+            $avg_lng += 180;
+        } elsif ( abs( $avg_lng ) <= 90 ) {
+            $avg_lng -= 180;
+        }
+    }
+
+    return [ $center_lat,$avg_lng ];
 }
 
 sub center {
-  my ($this, $point_text) = @_;
+    my ( $self,$point_text ) = @_;
 
-  my $point = $this->_text_to_point($point_text);
-  return 0 unless $point;
-    
-  $this->{center} = $point;
-  return 1;
-}
+    my $point = $self->_text_to_point( $point_text )
+        || return 0;
 
-sub zoom {
-  my ($this, $zoom_level) = @_;
-
-  $this->{zoom} = 17-$zoom_level;
-}
-
-sub v2_zoom {
-  my ($this, $zoom_level) = @_;
-
-  $this->{zoom} = $zoom_level;
+    $self->{center} = $point;
+    return 1;
 }
 
 sub controls {
-  my ($this, @controls) = @_;
+    my ( $self,@controls ) = @_;
 
-  my %valid_controls = map { $_ => 1 } qw(large_map_control
-    small_map_control
-    small_zoom_control
-    map_type_control);
-  return 0 if grep { !$valid_controls{$_} } @controls;
+    my %valid_controls = map { $_ => 1 } qw(
+        large_map_control
+        small_map_control
+        small_zoom_control
+        map_type_control
+    );
 
-  $this->{controls} = [ @controls ];
+    return 0 if grep { !$valid_controls{$_} } @controls;
+
+    $self->{controls} = [ @controls ];
 }
 
-sub dragging {
-  my ($this, $dragging) = @_;
-
-  $this->{dragging} = $dragging;
-}
-
-sub info_window {
-  my ($this, $info) = @_;
-
-  $this->{info_window} = $info;
-}
+sub dragging    { $_[0]->{dragging}    = $_[1]; }
+sub info_window { $_[0]->{info_window} = $_[1]; }
+sub map_id      { $_[0]->{id}          = $_[1]; }
+sub zoom        { $_[0]->{zoom}        = 17 - $_[1]; }
+sub v2_zoom     { $_[0]->{zoom}        = $_[1]; }
 
 sub map_type {
-  my ($this, $type) = @_;
+    my ( $self,$type ) = @_;
 
-  my %valid_types = (map_type => 'G_NORMAL_MAP',
-    satellite_type => 'G_SATELLITE_MAP',
-    normal => 'G_NORMAL_MAP',
-    satellite => 'G_SATELLITE_MAP',
-    hybrid => 'G_HYBRID_MAP');
-  return 0 unless $valid_types{$type};
+    $type = {
+        normal         => 'G_NORMAL_MAP',
+        map_type       => 'G_NORMAL_MAP',
+        satellite_type => 'G_SATELLITE_MAP',
+        satellite      => 'G_SATELLITE_MAP',
+        hybrid         => 'G_HYBRID_MAP',
+    }->{ $type } || return 0;
 
-  $this->{type} = $valid_types{$type};
-}
-
-sub map_id {
-  my ($this, $id) = @_;
-  $this->{id} = $id;
+    $self->{type} = $type;
 }
 
 sub add_marker {
-  my ($this, %opts) = @_;
-    
-  return 0 if $opts{icon} && $opts{icon} !~ /^[A-J]$/
-    && !$this->{icon_hash}{$opts{icon}};
+    my ( $self,%opts ) = @_;
 
-  my $point = $this->_text_to_point($opts{point});
-  return 0 unless $point;
+    return 0 if $opts{icon} && $opts{icon} !~ /^[A-J]$/
+        && !$self->{icon_hash}{$opts{icon}};
 
-  push @{$this->{points}}, { point => $point,
-    icon => $opts{icon},
-    html => $opts{html},
-    format => !$opts{noformat} };
+    my $point = $self->_text_to_point($opts{point})
+        || return 0;
+
+    push( @{$self->{points}}, {
+        point  => $point,
+        icon   => $opts{icon},
+        html   => $opts{html},
+        format => !$opts{noformat}
+    } );
 }
 
 sub add_icon {
-  my ($this, %opts) = @_;
+    my ( $self,%opts ) = @_;
 
-  return 0 unless $opts{image} && $opts{shadow} && $opts{name};
-    
-  $this->{icon_hash}{$opts{name}} = 1;
-  push @{$this->{icons}}, \%opts;
+    return 0 unless $opts{image} && $opts{shadow} && $opts{name};
+
+    $self->{icon_hash}{$opts{name}} = 1;
+    push( @{$self->{icons}},\%opts );
 }
 
 sub add_polyline {
-  my ($this, %opts) = @_;
+    my ( $self,%opts ) = @_;
 
-  my @points = map { $this->_text_to_point($_) } @{$opts{points}};
-  return 0 if grep { !$_ } @points;
+    my @points = map { $self->_text_to_point($_) } @{$opts{points}};
+        return 0 if grep { !$_ } @points;
 
-  push @{$this->{poly_lines}}, { points => \@points,
-    color => $opts{color} || "\#0000ff",
-    weight => $opts{weight} || 5,
-    opacity => $opts{opacity} || .5 };
+    push( @{$self->{poly_lines}}, {
+        points  => \@points,
+        color   => $opts{color} || "\#0000ff",
+        weight  => $opts{weight} || 5,
+        opacity => $opts{opacity} || .5 }
+    );
 }
 
 sub onload_render {
-  my ($this) = @_;
+    my ( $self ) = @_;
 
-  # Add in all the defaults
-  $this->{id} ||= 'map';
-  $this->{height} ||= '400px';
-  $this->{width} ||= '600px';
-  $this->{dragging} = 1 unless defined $this->{dragging};
-  $this->{info_window} = 1 unless defined $this->{info_window};
-  $this->{type} ||= "G_NORMAL_MAP";
-  $this->{zoom} ||= 13;
-  $this->{center} ||= $this->_find_center;
+    # Add in all the defaults
+    $self->{id}         ||= 'map';
+    $self->{height}     ||= '400px';
+    $self->{width}      ||= '600px';
+    $self->{type}       ||= "G_NORMAL_MAP";
+    $self->{zoom}       ||= 13;
+    $self->{center}     ||= $self->_find_center;
+    $self->{dragging}     = 1 unless defined $self->{dragging};
+    $self->{info_window}  = 1 unless defined $self->{info_window};
 
-  if ( $this->{width} =~ m/^\d+$/ ) {
-      $this->{width} .= 'px';
-  }
-  if ( $this->{height} =~ m/^\d+$/ ) {
-      $this->{height} .= 'px';
-  }
+    $self->{width}  .= 'px' if $self->{width} =~ m/^\d+$/;
+    $self->{height} .= 'px' if $self->{height} =~ m/^\d+$/;
 
-  my $header = '<script src="https://maps.google.com/maps?file=api&v=3__KEY__" '
-      . 'type="text/javascript"></script>'
-  ;
+    my $header = '<script src="https://maps.google.com/maps?file=api&v=3__KEY__" '
+        . 'type="text/javascript"></script>'
+    ;
 
-  my $key = $this->{api_key}
-    ? "&key=@{[ $this->{api_key} ]}" : "";
+    my $key = $self->{api_key}
+        ? "&key=@{[ $self->{api_key} ]}" : "";
 
-  $header =~ s/__KEY__/$key/;
+    $header =~ s/__KEY__/$key/;
 
-  my $map = sprintf(
-    '<div id="%s" style="width: %s; height: %s"></div>',
-    $this->{id},
-    $this->{width},
-    $this->{height},
-  );
+    my $map = sprintf(
+        '<div id="%s" style="width: %s; height: %s"></div>',
+        $self->{id},
+        $self->{width},
+        $self->{height},
+    );
 
-  $header .= <<SCRIPT;
+    $header .= <<SCRIPT;
 <script type=\"text/javascript\">
     //<![CDATA[
   function html_googlemaps_initialize() {    
     if (GBrowserIsCompatible()) {
-      var map = new GMap2(document.getElementById("$this->{id}"));
+      var map = new GMap2(document.getElementById("$self->{id}"));
 SCRIPT
-  $header .= "      map.setCenter(new GLatLng($this->{center}[0], $this->{center}[1]));\n"
-    if $this->{center};
-  $header .= "      map.setZoom($this->{zoom});\n"
-    if $this->{zoom};
 
-  $header .= "      map.setMapType($this->{type});\n";
+    $header .= "      map.setCenter(new GLatLng($self->{center}[0], $self->{center}[1]));\n"
+        if $self->{center};
+    $header .= "      map.setZoom($self->{zoom});\n"
+        if $self->{zoom};
 
-  if ($this->{controls}) {
-    foreach my $control (@{$this->{controls}}) {
-      $control =~ s/_(.)/uc($1)/ge;
-      $control = ucfirst($control);
-      $header .= "      map.addControl(new G${control}());\n";
+    $header .= "      map.setMapType($self->{type});\n";
+
+    if ($self->{controls}) {
+        foreach my $control (@{$self->{controls}}) {
+            $control =~ s/_(.)/uc($1)/ge;
+            $control = ucfirst($control);
+            $header .= "      map.addControl(new G${control}());\n";
+        }
     }
-  }
-  unless ($this->{dragging}) {
-    $header .= "      map.disableDragging();\n";
-  }
 
-  # Add in "standard" icons
-  my %icons = map { $_->{icon} => 1 } 
-    grep { defined $_->{icon} && $_->{icon} =~ /^([A-J])$/; } 
-      @{$this->{points}};
-  foreach my $icon (keys %icons) {
-    $header .= "      var icon_$icon = new GIcon();
+    $header .= "      map.disableDragging();\n"
+        if ! $self->{dragging};
+
+    # Add in "standard" icons
+    my %icons = map { $_->{icon} => 1 } 
+        grep { defined $_->{icon} && $_->{icon} =~ /^([A-J])$/; } 
+        @{$self->{points}};
+
+    foreach my $icon (keys %icons) {
+        $header .= "      var icon_$icon = new GIcon();
       icon_$icon.shadow = \"https://www.google.com/mapfiles/shadow50.png\";
       icon_$icon.iconSize = new GSize(20, 34);
       icon_$icon.shadowSize = new GSize(37, 34);
       icon_$icon.iconAnchor = new GPoint(9, 34);
       icon_$icon.infoWindowAnchor = new GPoint(9, 2);
       icon_$icon.image = \"https://www.google.com/mapfiles/marker$icon.png\";\n\n"
-  }
-
-  # And the rest
-  foreach my $icon (@{$this->{icons}}) {
-    $header .= "      var icon_$icon->{name} = new GIcon();\n";
-    $header .= "      icon_$icon->{name}.shadow = \"$icon->{shadow}\"\n"
-      if $icon->{shadow};
-    $header .= "      icon_$icon->{name}.iconSize = new GSize($icon->{icon_size}[0], $icon->{icon_size}[1]);\n"
-      if ref($icon->{icon_size}) eq "ARRAY";
-    $header .= "      icon_$icon->{name}.shadowSize = new GSize($icon->{shadow_size}[0], $icon->{shadow_size}[1]);\n"
-      if ref($icon->{shadow_size}) eq "ARRAY";
-    $header .= "      icon_$icon->{name}.iconAnchor = new GPoint($icon->{icon_anchor}[0], $icon->{icon_anchor}[1]);\n"
-      if ref($icon->{icon_anchor}) eq "ARRAY";
-    $header .= "      icon_$icon->{name}.infoWindowAnchor = new GPoint($icon->{info_window_anchor}[0], $icon->{info_window_anchor}[1]);\n"
-      if ref($icon->{info_window_anchor}) eq "ARRAY";
-    $header .= "      icon_$icon->{name}.image = \"$icon->{image}\";\n\n";
-  }
-
-  my $i;
-  foreach my $point (@{$this->{points}}) {
-    $i++;
-
-    my $icon = '';
-    if (defined $point->{icon}) {
-      $point->{icon} =~ s/(.+)/icon_$1/;
-      $icon = ", $point->{icon}";
     }
 
-    my $point_html = $point->{html};
-    if ($point->{format} && $point->{html}) {
-      $point_html = sprintf(
-        '<div style="width:350px;height:200px;">%s</div>',
-        $point->{html},
-      );
+    # And the rest
+    foreach my $icon (@{$self->{icons}}) {
+        $header .= "      var icon_$icon->{name} = new GIcon();\n";
+        $header .= "      icon_$icon->{name}.shadow = \"$icon->{shadow}\"\n"
+            if $icon->{shadow};
+        $header .= "      icon_$icon->{name}.iconSize = new GSize($icon->{icon_size}[0], $icon->{icon_size}[1]);\n"
+            if ref($icon->{icon_size}) eq "ARRAY";
+        $header .= "      icon_$icon->{name}.shadowSize = new GSize($icon->{shadow_size}[0], $icon->{shadow_size}[1]);\n"
+            if ref($icon->{shadow_size}) eq "ARRAY";
+        $header .= "      icon_$icon->{name}.iconAnchor = new GPoint($icon->{icon_anchor}[0], $icon->{icon_anchor}[1]);\n"
+            if ref($icon->{icon_anchor}) eq "ARRAY";
+        $header .= "      icon_$icon->{name}.infoWindowAnchor = new GPoint($icon->{info_window_anchor}[0], $icon->{info_window_anchor}[1]);\n"
+            if ref($icon->{info_window_anchor}) eq "ARRAY";
+        $header .= "      icon_$icon->{name}.image = \"$icon->{image}\";\n\n";
     }
 
-    my ( $lat,$lng ) = ( $point->{point}[0],$point->{point}[1] );
-	$lat = defined $lat ? $lat : 0;
-	$lng = defined $lng ? $lng : 0;
-    $header .= "      var marker_$i = new GMarker(new GLatLng($lat, $lng) $icon);\n";
-    if ( $point->{html} ) {
-        $point_html =~ s/'/\\'/g;
-    $header .= "      GEvent.addListener(marker_$i, \"click\", function () {  marker_$i.openInfoWindowHtml('$point_html'); });\n"
+    my $i;
+    foreach my $point (@{$self->{points}}) {
+        $i++;
+
+        my $icon = '';
+        if (defined $point->{icon}) {
+            $point->{icon} =~ s/(.+)/icon_$1/;
+            $icon = ", $point->{icon}";
+        }
+
+        my $point_html = $point->{html};
+        if ($point->{format} && $point->{html}) {
+            $point_html = sprintf(
+                '<div style="width:350px;height:200px;">%s</div>',
+                $point->{html},
+            );
+        }
+
+        my ( $lat,$lng ) = ( $point->{point}[0],$point->{point}[1] );
+        $lat = defined $lat ? $lat : 0;
+        $lng = defined $lng ? $lng : 0;
+        $header .= "      var marker_$i = new GMarker(new GLatLng($lat, $lng) $icon);\n";
+
+        if ( $point->{html} ) {
+            $point_html =~ s/'/\\'/g;
+            $header .= "      GEvent.addListener(marker_$i, \"click\", function () {  marker_$i.openInfoWindowHtml('$point_html'); });\n"
+        }
+
+        $header .= "      map.addOverlay(marker_$i);\n";
     }
-    $header .= "      map.addOverlay(marker_$i);\n";
-  }
 
-  $i = 0;
-  foreach my $polyline (@{$this->{poly_lines}}) {
-    $i++;
-    my $points = "[" . join(", ", map { "new GLatLng($_->[0], $_->[1])" } @{$polyline->{points}}) . "]";
-    $header .= "      var polyline_$i = new GPolyline($points, \"$polyline->{color}\", $polyline->{weight}, $polyline->{opacity});\n";
-    $header .= "      map.addOverlay(polyline_$i);\n";
-  }
+    $i = 0;
+    foreach my $polyline (@{$self->{poly_lines}}) {
+        $i++;
+        my $points = "[" . join(", ", map { "new GLatLng($_->[0], $_->[1])" } @{$polyline->{points}}) . "]";
+        $header .= "      var polyline_$i = new GPolyline($points, \"$polyline->{color}\", $polyline->{weight}, $polyline->{opacity});\n";
+        $header .= "      map.addOverlay(polyline_$i);\n";
+    }
 
-  $header .= "    }
+    $header .= "    }
   }
     //]]>
     </script>";
 
-  return ($header, $map);
+    return ( $header,$map );
 }
 
 1;
+
+# vim: ts=4:sw=4:et
