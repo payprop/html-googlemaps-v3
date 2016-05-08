@@ -344,7 +344,7 @@ sub onload_render {
       $this->{height} .= 'px';
   }
 
-  my $header = '<script src="http://maps.google.com/maps?file=api&v=3__KEY__" '
+  my $header = '<script src="https://maps.google.com/maps?file=api&v=3__KEY__" '
       . 'type="text/javascript"></script>'
   ;
 
@@ -391,12 +391,12 @@ SCRIPT
       @{$this->{points}};
   foreach my $icon (keys %icons) {
     $header .= "      var icon_$icon = new GIcon();
-      icon_$icon.shadow = \"http://www.google.com/mapfiles/shadow50.png\";
+      icon_$icon.shadow = \"https://www.google.com/mapfiles/shadow50.png\";
       icon_$icon.iconSize = new GSize(20, 34);
       icon_$icon.shadowSize = new GSize(37, 34);
       icon_$icon.iconAnchor = new GPoint(9, 34);
       icon_$icon.infoWindowAnchor = new GPoint(9, 2);
-      icon_$icon.image = \"http://www.google.com/mapfiles/marker$icon.png\";\n\n"
+      icon_$icon.image = \"https://www.google.com/mapfiles/marker$icon.png\";\n\n"
   }
 
   # And the rest
