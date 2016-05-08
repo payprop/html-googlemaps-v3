@@ -1,3 +1,5 @@
+package HTML::GoogleMaps::V3;
+
 =head1 NAME
 
 HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
@@ -23,13 +25,16 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 NOTE
 
-This module is forked from L<HTML::GoogleMaps>, it is an almost drop in
-replacement requiring minimal changes to your code other than adding the ::V3
-namespace. If you are using the deprecated ->render method you should change
-this to ->onload_render as this version of the module removes ->render
+This module is forked from L<HTML::GoogleMaps> and updated to use V3 of
+the API. Note that the module isn't quite a drop in replacement, although
+it should be trivial to update your code to use it.
 
 Note that V3 of the API does not require an API key, however you can pass
 one and it will be used (useful for analytics).
+
+Also note that this library only implements a subset of the functionality
+available in the maps API, if you want more then raise an issue or create
+a pull request.
 
 =head1 DESCRIPTION
 
@@ -59,102 +64,11 @@ Valid options are:
 
 =back
 
-=head1 METHODS
-
-=over 4
-
-=item $map->center($point)
-
-Center the map at a given point.
-
-=item $map->v2_zoom($level)
-
-Set the new zoom level (0 is corsest)
-
-=item $map->controls($control1, $control2)
-
-Enable the given controls. Valid controls are: B<large_map_control>,
-B<small_map_control>, B<small_zoom_control> and B<map_type_control>.
-
-=item $map->dragging($enable)
-
-Enable or disable dragging.
-
-=item $map->info_window($enable)
-
-Enable or disable info windows.
-
-=item $map->map_type($type)
-
-Set the map type. Either B<normal>, B<satellite> or B<hybrid>. The
-v1 API B<map_type> or B<satellite_type> still work, but may be dropped
-in a future version.
-
-=item $map->map_id($id)
-
-Set the id of the map div
-
-=item $map->add_icon(name => $icon_name,
-                     image => $image_url,
-                     shadow => $shadow_url,
-                     icon_size => [ $width, $height ],
-                     shadow_size => [ $width, $height ],
-                     icon_anchor => [ $x, $y ],
-                     info_window_anchor => [ $x, $y ]);
-
-Adds a new icon, which can later be used by add_marker. All args
-are required except for info_window_anchor.
-
-=item $map->add_marker(point => $point, html => $info_window_html)
-
-Add a marker to the map at the given point. A point can be a unique
-place name, like an address, or a pair of coordinates passed in as
-an arrayref: [ longituded, latitude ].
-
-If B<html> is specified,
-add a popup info window as well. B<icon> can be used to switch to
-either a user defined icon (via the name) or a standard google letter
-icon (A-J).
-
-Any data given for B<html> is placed inside a 350px by 200px div to
-make it fit nicely into the Google popup. To turn this behavior off 
-just pass B<noformat> => 1 as well.
-
-=item $map->add_polyline(points => [ $point1, $point2 ])
-
-Add a polyline that connects the list of points. Other options
-include B<color> (any valid HTML color), B<weight> (line width in
-pixels) and B<opacity> (between 0 and 1).
-
-=item $map->onload_render
-
-Renders the map and returns a two element list. The first element
-needs to be placed in the head section of your HTML document. The
-second in the body where you want the map to appear. You will also 
-need to add a call to html_googlemaps_initialize() in your page's 
-onload handler. The easiest way to do this is adding it to the body
-tag:
-
-    <body onload="html_googlemaps_initialize()">
-
-=back
-
-=head1 BUGS
-
-Address bug reports and comments to: L<https://github.com/G3S/html-googlemaps-v3/issues>
-
-=head1 AUTHORS
-
-Nate Mueller <nate@cs.wisc.edu> - Original Author
-
-Lee Johnson <leejo@cpan.org> - Maintainer of this fork
-
 =cut
-
-package HTML::GoogleMaps::V3;
 
 use strict;
 use Geo::Coder::Google;
+use Template;
 
 our $VERSION = '0.03';
 
@@ -226,6 +140,16 @@ sub _find_center {
     return [ $center_lat,$avg_lng ];
 }
 
+=head1 METHODS
+
+=over 4
+
+=item $map->center($point)
+
+Center the map at a given point.
+
+=cut
+
 sub center {
     my ( $self,$point_text ) = @_;
 
@@ -236,66 +160,89 @@ sub center {
     return 1;
 }
 
-sub controls {
-    my ( $self,@controls ) = @_;
+=item $map->zoom($level)
 
-    my %valid_controls = map { $_ => 1 } qw(
-        large_map_control
-        small_map_control
-        small_zoom_control
-        map_type_control
-    );
+Set the new zoom level (0 is corsest)
 
-    return 0 if grep { !$valid_controls{$_} } @controls;
+=cut
 
-    $self->{controls} = [ @controls ];
-}
+=item $map->dragging($enable)
 
+Enable or disable dragging.
+
+=cut
+
+=item $map->info_window($enable)
+
+Enable or disable info windows.
+
+=cut
+
+=item $map->map_id($id)
+
+Set the id of the map div
+
+=cut
+
+sub add_icon    { 1; }
+sub controls    { 1; }
 sub dragging    { $_[0]->{dragging}    = $_[1]; }
 sub info_window { $_[0]->{info_window} = $_[1]; }
 sub map_id      { $_[0]->{id}          = $_[1]; }
-sub zoom        { $_[0]->{zoom}        = 17 - $_[1]; }
+sub zoom        { $_[0]->{zoom}        = $_[1]; }
 sub v2_zoom     { $_[0]->{zoom}        = $_[1]; }
+
+=item $map->map_type($type)
+
+Set the map type. Either B<normal>, B<satellite>, B<road>, or B<hybrid>.
+
+=cut
 
 sub map_type {
     my ( $self,$type ) = @_;
 
     $type = {
-        normal         => 'G_NORMAL_MAP',
-        map_type       => 'G_NORMAL_MAP',
-        satellite_type => 'G_SATELLITE_MAP',
-        satellite      => 'G_SATELLITE_MAP',
-        hybrid         => 'G_HYBRID_MAP',
+        normal         => 'NORMAL',
+        map_type       => 'NORMAL',
+        satellite_type => 'SATELLITE',
+        satellite      => 'SATELLITE',
+        hybrid         => 'HYBRID',
+        road           => 'ROADMAP',
     }->{ $type } || return 0;
 
     $self->{type} = $type;
 }
 
+=item $map->add_marker(point => $point, html => $info_window_html)
+
+Add a marker to the map at the given point. A point can be a unique
+place name, like an address, or a pair of coordinates passed in as
+an arrayref: [ longitude, latitude ].
+
+If B<html> is specified, add a popup info window as well.
+
+=cut
+
 sub add_marker {
     my ( $self,%opts ) = @_;
-
-    return 0 if $opts{icon} && $opts{icon} !~ /^[A-J]$/
-        && !$self->{icon_hash}{$opts{icon}};
 
     my $point = $self->_text_to_point($opts{point})
         || return 0;
 
     push( @{$self->{points}}, {
         point  => $point,
-        icon   => $opts{icon},
         html   => $opts{html},
         format => !$opts{noformat}
     } );
 }
 
-sub add_icon {
-    my ( $self,%opts ) = @_;
+=item $map->add_polyline(points => [ $point1, $point2 ])
 
-    return 0 unless $opts{image} && $opts{shadow} && $opts{name};
+Add a polyline that connects the list of points. Other options
+include B<color> (any valid HTML color), B<weight> (line width in
+pixels) and B<opacity> (between 0 and 1).
 
-    $self->{icon_hash}{$opts{name}} = 1;
-    push( @{$self->{icons}},\%opts );
-}
+=cut
 
 sub add_polyline {
     my ( $self,%opts ) = @_;
@@ -311,6 +258,83 @@ sub add_polyline {
     );
 }
 
+sub _js_template {
+
+    my $template =<<"EndOfTemplate";
+
+function html_googlemaps_initialize() {
+
+    myCenterLatLng = new google.maps.LatLng({lat: [% center.0 %], lng: [% center.1 %]});
+
+    // key map controls
+    var map = new google.maps.Map(document.getElementById('[% id %]'), {
+        mapTypeId: google.maps.MapTypeId.[% type %],
+        [% IF center %]center: myCenterLatLng,[% END %]
+        scrollwheel: false,
+        zoom: [% zoom %],
+        draggable: [% dragging ? 'true' : 'false' %]
+    });
+
+    [% FOREACH point IN points %]
+
+    // marker
+    myMarker[% loop.count %]LatLng = new google.maps.LatLng({lat: [% point.point.0 %], lng: [% point.point.1 %]});
+    var marker[% loop.count %] = new google.maps.Marker({
+        map: map,
+        position: myMarker[% loop.count %]LatLng,
+    });
+
+    // marker infoWindow
+    [% IF info_window AND point.html %]
+    var contentString[% loop.count %] = '[% point.html %]';
+    var infowindow[% loop.count %] = new google.maps.InfoWindow({
+        content: contentString[% loop.count %]
+    });
+
+    marker[% loop.count %].addListener('click', function() {
+        infowindow[% loop.count %].open(map, marker[% loop.count %]);
+    });
+    [% END %]
+
+    [% END -%]
+
+    [% FOREACH route IN poly_lines %]
+
+    // polylines
+    var route[% loop.count %]Coordinates = [
+        [% FOREACH point IN route.points %]{lat: [% point.0 %], lng: [% point.1 %]}[% loop.last ? '' : ',' %]
+        [% END %]
+    ];
+
+    var route[% loop.count %] = new google.maps.Polyline({
+        path: route[% loop.count %]Coordinates,
+        geodesic: true,
+        strokeColor: '[% route.color %]',
+        strokeOpacity: [% route.opacity %],
+        strokeWeight: [% route.weight %]
+    });
+
+    route[% loop.count %].setMap(map);
+    [% END %]
+}
+EndOfTemplate
+}
+
+=item $map->onload_render
+
+Renders the map and returns a two element list. The first element
+needs to be placed in the head section of your HTML document. The
+second in the body where you want the map to appear. You will also 
+need to add a call to html_googlemaps_initialize() in your page's 
+onload handler. The easiest way to do this is adding it to the body
+tag:
+
+    <body onload="html_googlemaps_initialize()">
+
+=back
+
+=cut
+
 sub onload_render {
     my ( $self ) = @_;
 
@@ -318,7 +342,7 @@ sub onload_render {
     $self->{id}         ||= 'map';
     $self->{height}     ||= '400px';
     $self->{width}      ||= '600px';
-    $self->{type}       ||= "G_NORMAL_MAP";
+    $self->{type}       ||= "NORMAL";
     $self->{zoom}       ||= 13;
     $self->{center}     ||= $self->_find_center;
     $self->{dragging}     = 1 unless defined $self->{dragging};
@@ -327,125 +351,43 @@ sub onload_render {
     $self->{width}  .= 'px' if $self->{width} =~ m/^\d+$/;
     $self->{height} .= 'px' if $self->{height} =~ m/^\d+$/;
 
-    my $header = '<script src="https://maps.google.com/maps?file=api&v=3__KEY__" '
-        . 'type="text/javascript"></script>'
+    my $header = '<script src="https://maps.googleapis.com/maps/api/js__KEY__"'
+        . ' aync defer type="text/javascript"></script>'
     ;
 
     my $key = $self->{api_key}
-        ? "&key=@{[ $self->{api_key} ]}" : "";
+        ? "?key=@{[ $self->{api_key} ]}" : "";
 
     $header =~ s/__KEY__/$key/;
 
     my $map = sprintf(
         '<div id="%s" style="width: %s; height: %s"></div>',
-        $self->{id},
-        $self->{width},
-        $self->{height},
+        @{$self}{qw/ id width height / },
     );
 
-    $header .= <<SCRIPT;
-<script type=\"text/javascript\">
-    //<![CDATA[
-  function html_googlemaps_initialize() {    
-    if (GBrowserIsCompatible()) {
-      var map = new GMap2(document.getElementById("$self->{id}"));
-SCRIPT
+    my $out;
+    Template->new->process( \$self->_js_template,$self,\$out );
 
-    $header .= "      map.setCenter(new GLatLng($self->{center}[0], $self->{center}[1]));\n"
-        if $self->{center};
-    $header .= "      map.setZoom($self->{zoom});\n"
-        if $self->{zoom};
-
-    $header .= "      map.setMapType($self->{type});\n";
-
-    if ($self->{controls}) {
-        foreach my $control (@{$self->{controls}}) {
-            $control =~ s/_(.)/uc($1)/ge;
-            $control = ucfirst($control);
-            $header .= "      map.addControl(new G${control}());\n";
-        }
-    }
-
-    $header .= "      map.disableDragging();\n"
-        if ! $self->{dragging};
-
-    # Add in "standard" icons
-    my %icons = map { $_->{icon} => 1 } 
-        grep { defined $_->{icon} && $_->{icon} =~ /^([A-J])$/; } 
-        @{$self->{points}};
-
-    foreach my $icon (keys %icons) {
-        $header .= "      var icon_$icon = new GIcon();
-      icon_$icon.shadow = \"https://www.google.com/mapfiles/shadow50.png\";
-      icon_$icon.iconSize = new GSize(20, 34);
-      icon_$icon.shadowSize = new GSize(37, 34);
-      icon_$icon.iconAnchor = new GPoint(9, 34);
-      icon_$icon.infoWindowAnchor = new GPoint(9, 2);
-      icon_$icon.image = \"https://www.google.com/mapfiles/marker$icon.png\";\n\n"
-    }
-
-    # And the rest
-    foreach my $icon (@{$self->{icons}}) {
-        $header .= "      var icon_$icon->{name} = new GIcon();\n";
-        $header .= "      icon_$icon->{name}.shadow = \"$icon->{shadow}\"\n"
-            if $icon->{shadow};
-        $header .= "      icon_$icon->{name}.iconSize = new GSize($icon->{icon_size}[0], $icon->{icon_size}[1]);\n"
-            if ref($icon->{icon_size}) eq "ARRAY";
-        $header .= "      icon_$icon->{name}.shadowSize = new GSize($icon->{shadow_size}[0], $icon->{shadow_size}[1]);\n"
-            if ref($icon->{shadow_size}) eq "ARRAY";
-        $header .= "      icon_$icon->{name}.iconAnchor = new GPoint($icon->{icon_anchor}[0], $icon->{icon_anchor}[1]);\n"
-            if ref($icon->{icon_anchor}) eq "ARRAY";
-        $header .= "      icon_$icon->{name}.infoWindowAnchor = new GPoint($icon->{info_window_anchor}[0], $icon->{info_window_anchor}[1]);\n"
-            if ref($icon->{info_window_anchor}) eq "ARRAY";
-        $header .= "      icon_$icon->{name}.image = \"$icon->{image}\";\n\n";
-    }
-
-    my $i;
-    foreach my $point (@{$self->{points}}) {
-        $i++;
-
-        my $icon = '';
-        if (defined $point->{icon}) {
-            $point->{icon} =~ s/(.+)/icon_$1/;
-            $icon = ", $point->{icon}";
-        }
-
-        my $point_html = $point->{html};
-        if ($point->{format} && $point->{html}) {
-            $point_html = sprintf(
-                '<div style="width:350px;height:200px;">%s</div>',
-                $point->{html},
-            );
-        }
-
-        my ( $lat,$lng ) = ( $point->{point}[0],$point->{point}[1] );
-        $lat = defined $lat ? $lat : 0;
-        $lng = defined $lng ? $lng : 0;
-        $header .= "      var marker_$i = new GMarker(new GLatLng($lat, $lng) $icon);\n";
-
-        if ( $point->{html} ) {
-            $point_html =~ s/'/\\'/g;
-            $header .= "      GEvent.addListener(marker_$i, \"click\", function () {  marker_$i.openInfoWindowHtml('$point_html'); });\n"
-        }
-
-        $header .= "      map.addOverlay(marker_$i);\n";
-    }
-
-    $i = 0;
-    foreach my $polyline (@{$self->{poly_lines}}) {
-        $i++;
-        my $points = "[" . join(", ", map { "new GLatLng($_->[0], $_->[1])" } @{$polyline->{points}}) . "]";
-        $header .= "      var polyline_$i = new GPolyline($points, \"$polyline->{color}\", $polyline->{weight}, $polyline->{opacity});\n";
-        $header .= "      map.addOverlay(polyline_$i);\n";
-    }
-
-    $header .= "    }
-  }
-    //]]>
-    </script>";
+    $header .= "<script>$out</script>";
 
     return ( $header,$map );
 }
+
+=head1 SEE ALSO
+
+L<https://developers.google.com/maps/documentation/javascript/3.exp/reference>
+
+=head1 BUGS
+
+Address bug reports and comments to: L<https://github.com/G3S/html-googlemaps-v3/issues>
+
+=head1 AUTHORS
+
+Nate Mueller <nate@cs.wisc.edu> - Original Author
+
+Lee Johnson <leejo@cpan.org> - Maintainer of this fork
+
+=cut
 
 1;
 

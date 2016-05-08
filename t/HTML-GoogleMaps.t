@@ -49,12 +49,12 @@ use HTML::GoogleMaps::V3;
 {
   my $map = HTML::GoogleMaps::V3->new;
   my ($head, $html) = $map->onload_render;
-  like( $head, qr/script.*v=3/, 'Point to v3 API' );
+  like( $head, qr!script.*maps.googleapis.com/maps/api/js!, 'Point to v3 API' );
 
   $map->zoom(2);
-  is( $map->{zoom}, 15, 'v1 zoom function translates' );
+  is( $map->{zoom}, 2, '->zoom' );
   $map->v2_zoom(3);
-  is( $map->{zoom}, 3, 'v2 zoom function works as expected' );
+  is( $map->{zoom}, 3, '->v2_zoom' );
     
   $map->center([12,13]);
   $map->add_marker(point => [13,14]);
@@ -63,19 +63,22 @@ use HTML::GoogleMaps::V3;
 
   $map->map_type('map_type');
   ($html, $head) = $map->onload_render;
-  like( $html, qr/G_NORMAL_MAP/, 'map_type' );
+  like( $html, qr/NORMAL/, 'map_type' );
   $map->map_type('satellite_type');
   ($html, $head) = $map->onload_render;
-  like( $html, qr/G_SATELLITE_MAP/, 'satellite_type' );
+  like( $html, qr/SATELLITE/, 'satellite_type' );
   $map->map_type('normal');
   ($html, $head) = $map->onload_render;
-  like( $html, qr/G_NORMAL_MAP/, 'normal' );
+  like( $html, qr/NORMAL/, 'normal' );
   $map->map_type('satellite');
   ($html, $head) = $map->onload_render;
-  like( $html, qr/G_SATELLITE_MAP/, 'satellite' );
+  like( $html, qr/SATELLITE/, 'satellite' );
   $map->map_type('hybrid');
   ($html, $head) = $map->onload_render;
-  like( $html, qr/G_HYBRID_MAP/, 'hybrid' );
+  like( $html, qr/HYBRID/, 'hybrid' );
+  $map->map_type('road');
+  ($html, $head) = $map->onload_render;
+  like( $html, qr/ROADMAP/, 'road' );
 }
 
 # Geo::Coder::Google
@@ -87,7 +90,7 @@ use HTML::GoogleMaps::V3;
 
   $map->add_marker(point => 'result_democritean');
   my ($html, $head) = $map->onload_render;
-  like( $html, qr/GMarker\(new GLatLng\(3925, 3463\)/,
+  like( $html, qr/\Qnew google.maps.LatLng({lat: 3925, lng: 3463})\E/,
   'Geocoding with Geo::Coder::Google' );
 }
 
@@ -96,11 +99,11 @@ use HTML::GoogleMaps::V3;
   my $map = HTML::GoogleMaps::V3->new;
   $map->dragging(0);
   my ($html, $head) = $map->onload_render;
-  like( $html, qr/map.disableDragging/,'dragging' );
+  like( $html, qr/draggable: false/,'dragging' );
 
   $map->dragging(1);
   ($html, $head) = $map->onload_render;
-  unlike( $html, qr/map.disableDragging/,'! dragging' );
+  unlike( $html, qr/draggable: false/,'! dragging' );
 }
 
 # map_id
@@ -111,7 +114,7 @@ use HTML::GoogleMaps::V3;
   $map->add_polyline(points => [[21, 31], [22, 32]]);
 
   my ($head, $div) = $map->onload_render;
-  like( $head, qr/getElementById\("electrometrical_nombles"\)/, 'Correct map ID for getElementById' );
+  like( $head, qr/getElementById\('electrometrical_nombles'\)/, 'Correct map ID for getElementById' );
   like( $div, qr/id="electrometrical_nombles"/, 'Correct map ID for div' );
 
   ok( $map->add_polyline( color => '#0000ff', points => [[21, 31], [22, 32]]) );
@@ -137,18 +140,15 @@ use HTML::GoogleMaps::V3;
     my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
     $map->add_marker( point => 'bar', html => qq|<a href="foo" title='bar'>baz</a>| );
     my ($head, $div) = $map->onload_render;
-    like( $head, qr/marker_1\.openInfoWindowHtml/, 'openInfoWindowHtml' );
+    is( $map->info_window( 1 ),1,'info_window' );
+    like( $head, qr/\Qvar infowindow1 = new google.maps.InfoWindow\E/, 'openInfoWindowHtml' );
 }
 
-# missing coverage
+# back compat methods that do nothing at present
 {
     my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
-    is( $map->controls( 'large_map_control' )->[0],'large_map_control','controls' );
-    is( $map->info_window( 'foo' ),'foo','info_window' );
-    ok( $map->add_icon( image => 'foo', shadow => 'bar', name => 'baz' ),'add_icon' );
-    ok( !$map->add_icon( shadow => 'bar', name => 'baz' ),'add_icon' );
-    ok( !$map->add_icon( image => 'foo',  name => 'baz' ),'add_icon' );
-    ok( !$map->add_icon( image => 'foo', shadow => 'bar' ),'add_icon' );
+    ok( $map->add_icon,'->add_icon' );
+    ok( $map->controls,'->controls' );
 
     $map->{points} = [ { point => [ -100,-100 ] } ];
     ok( $map->_find_center,'_find_center' );

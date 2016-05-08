@@ -2,6 +2,7 @@ Revision history for HTML::GoogleMaps::V3
 
 0.04 2016-05-08
         - Use https rather than http (GH #3)
+        - Update to v3 of API (GH #2)
 
 0.03 2016-04-26
         - Remove dead links from POD

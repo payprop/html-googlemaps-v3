@@ -11,10 +11,12 @@ use HTML::GoogleMaps::V3;
 any '/map/#center/#marker/' => sub {
 	my ( $c ) = @_;
 
-	# random API key, not actually required by testing its use here
-	my $map = HTML::GoogleMaps::V3->new();# api_key => 'AIzaSyjds04j4DSjfjnvkd003JFksjsncskslvI' );
+	my $map = HTML::GoogleMaps::V3->new;
 	$map->center( $c->param( 'center' ) );
-	$map->add_marker( point => $c->param( 'marker' ) );
+	$map->add_marker(
+		point => $c->param( 'marker' ),
+		html  => '<div id="content"><h3 id="firstHeading" class="firstHeading">' . $c->param( 'marker' ) . '</h3></div>',
+	);
 
 	my ( $head,$map_div ) = $map->onload_render;
 

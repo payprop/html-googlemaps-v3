@@ -13,6 +13,7 @@ WriteMakefile(
     MIN_PERL_VERSION => '5.005',
     PREREQ_PM => {
       'Geo::Coder::Google' => .16,
+      'Template'           => 2.00,
     },
     TEST_REQUIRES => {
         'Test::More'       => 1.001014,
