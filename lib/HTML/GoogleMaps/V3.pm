@@ -5,8 +5,8 @@ package HTML::GoogleMaps::V3;
 HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =for html
-<a href='https://travis-ci.org/G3S/html-googlemaps-v3?branch=master'><img src='https://travis-ci.org/G3S/html-googlemaps-v3.svg?branch=master' alt='Build Status' /></a>
-<a href='https://coveralls.io/r/G3S/html-googlemaps-v3?branch=master'><img src='https://coveralls.io/repos/G3S/html-googlemaps-v3/badge.png?branch=master' alt='Coverage Status' /></a>
+<a href='https://travis-ci.org/Humanstate/html-googlemaps-v3?branch=master'><img src='https://travis-ci.org/Humanstate/html-googlemaps-v3.svg?branch=master' alt='Build Status' /></a>
+<a href='https://coveralls.io/r/Humanstate/html-googlemaps-v3?branch=master'><img src='https://coveralls.io/repos/Humanstate/html-googlemaps-v3/badge.png?branch=master' alt='Coverage Status' /></a>
 
 =head1 VERSION
 
@@ -379,7 +379,7 @@ L<https://developers.google.com/maps/documentation/javascript/3.exp/reference>
 
 =head1 BUGS
 
-Address bug reports and comments to: L<https://github.com/G3S/html-googlemaps-v3/issues>
+Address bug reports and comments to: L<https://github.com/Humanstate/html-googlemaps-v3/issues>
 
 =head1 AUTHORS
 

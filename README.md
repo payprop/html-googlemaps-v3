@@ -4,8 +4,8 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 <div>
 
-    <a href='https://travis-ci.org/G3S/html-googlemaps-v3?branch=master'><img src='https://travis-ci.org/G3S/html-googlemaps-v3.svg?branch=master' alt='Build Status' /></a>
-    <a href='https://coveralls.io/r/G3S/html-googlemaps-v3?branch=master'><img src='https://coveralls.io/repos/G3S/html-googlemaps-v3/badge.png?branch=master' alt='Coverage Status' /></a>
+    <a href='https://travis-ci.org/Humanstate/html-googlemaps-v3?branch=master'><img src='https://travis-ci.org/Humanstate/html-googlemaps-v3.svg?branch=master' alt='Build Status' /></a>
+    <a href='https://coveralls.io/r/Humanstate/html-googlemaps-v3?branch=master'><img src='https://coveralls.io/repos/Humanstate/html-googlemaps-v3/badge.png?branch=master' alt='Coverage Status' /></a>
 </div>
 
 # VERSION
@@ -111,7 +111,7 @@ up locations around the world without having to install a local database.
 
 # BUGS
 
-Address bug reports and comments to: [https://github.com/G3S/html-googlemaps-v3/issues](https://github.com/G3S/html-googlemaps-v3/issues)
+Address bug reports and comments to: [https://github.com/Humanstate/html-googlemaps-v3/issues](https://github.com/Humanstate/html-googlemaps-v3/issues)
 
 # AUTHORS
 
