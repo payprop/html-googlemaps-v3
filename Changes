@@ -1,5 +1,8 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.05 2016-05-12
+        - Transfer repo from G3S to Humanstate
+
 0.04 2016-05-08
         - Use https rather than http (GH #3)
         - Update to v3 of API (GH #2)
