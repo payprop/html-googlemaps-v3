@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 VERSION
 
-0.05
+0.06
 
 =head1 SYNOPSIS
 
@@ -67,10 +67,12 @@ Valid options are:
 =cut
 
 use strict;
+use warnings;
+
 use Geo::Coder::Google;
 use Template;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
     my ( $class,%opts ) = @_;
@@ -377,9 +379,15 @@ sub onload_render {
 
 L<https://developers.google.com/maps/documentation/javascript/3.exp/reference>
 
-=head1 BUGS
+=head1 LICENSE
 
-Address bug reports and comments to: L<https://github.com/Humanstate/html-googlemaps-v3/issues>
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself. If you would like to contribute documentation,
+features, bug fixes, or anything else then please raise an issue / pull request:
+
+    https://github.com/Humanstate/business-fixflo
+
+=cut
 
 =head1 AUTHORS
 

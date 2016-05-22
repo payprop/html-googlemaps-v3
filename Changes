@@ -1,5 +1,8 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.06 2016-05-22
+        - add LICENCE and use warnings
+
 0.05 2016-05-12
         - Transfer repo from G3S to Humanstate
 

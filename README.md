@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # VERSION
 
-0.05
+0.06
 
 # SYNOPSIS
 
@@ -109,9 +109,13 @@ up locations around the world without having to install a local database.
 
 [https://developers.google.com/maps/documentation/javascript/3.exp/reference](https://developers.google.com/maps/documentation/javascript/3.exp/reference)
 
-# BUGS
+# LICENSE
 
-Address bug reports and comments to: [https://github.com/Humanstate/html-googlemaps-v3/issues](https://github.com/Humanstate/html-googlemaps-v3/issues)
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself. If you would like to contribute documentation,
+features, bug fixes, or anything else then please raise an issue / pull request:
+
+    https://github.com/Humanstate/business-fixflo
 
 # AUTHORS
 
