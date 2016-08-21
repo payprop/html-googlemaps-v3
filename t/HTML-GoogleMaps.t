@@ -124,29 +124,31 @@ use HTML::GoogleMaps::V3;
 
 # width and height
 {
-   my $map = HTML::GoogleMaps::V3->new( key => 'foo', width => 11, height => 22 );
+   my $map = HTML::GoogleMaps::V3->new( api_key => 'foo', width => 11, height => 22 );
    my ($head, $div) = $map->onload_render;
    like( $div, qr/width.+11px/, 'Correct width for div' );
    like( $div, qr/height.+22px/, 'Correct height for div' );
 
-   $map = HTML::GoogleMaps::V3->new( key => 'foo', width => '33%', height => '44em' );
+   $map = HTML::GoogleMaps::V3->new( api_key => 'foo', width => '33%', height => '44em' );
    ($head, $div) = $map->onload_render;
+   like( $head, qr/key=foo\b/, 'api_key used' );
    like( $div, qr/width.+33%/, 'Correct width for div' );
    like( $div, qr/height.+44em/, 'Correct height for div' );
 }
 
 # info window html
 {
-    my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
+    my $map = HTML::GoogleMaps::V3->new( api_key => 'foo' );
     $map->add_marker( point => 'bar', html => qq|<a href="foo" title='bar'>baz</a>| );
     my ($head, $div) = $map->onload_render;
+    like( $head, qr/key=foo\b/, 'api_key used' );
     is( $map->info_window( 1 ),1,'info_window' );
     like( $head, qr/\Qvar infowindow1 = new google.maps.InfoWindow\E/, 'openInfoWindowHtml' );
 }
 
 # back compat methods that do nothing at present
 {
-    my $map = HTML::GoogleMaps::V3->new( key => 'foo' );
+    my $map = HTML::GoogleMaps::V3->new( api_key => 'foo' );
     ok( $map->add_icon,'->add_icon' );
     ok( $map->controls,'->controls' );
 
