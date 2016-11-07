@@ -1,5 +1,8 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.07 2016-11-07
+        - add documentation for return values for functions (GH #5)
+
 0.06 2016-05-22
         - add LICENCE and use warnings
 

@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # VERSION
 
-0.06
+0.07
 
 # SYNOPSIS
 
@@ -58,7 +58,8 @@ up locations around the world without having to install a local database.
 
 - $map->center($point)
 
-    Center the map at a given point.
+    Center the map at a given point. Returns 1 on success, 0 if
+    the point could not be found.
 
 - $map->zoom($level)
 
@@ -84,7 +85,8 @@ up locations around the world without having to install a local database.
 
     Add a marker to the map at the given point. A point can be a unique
     place name, like an address, or a pair of coordinates passed in as
-    an arrayref: \[ longitude, latitude \].
+    an arrayref: \[ longitude, latitude \]. Will return 0 if the point
+    is not found and 1 on success.
 
     If **html** is specified, add a popup info window as well.
 
@@ -92,7 +94,8 @@ up locations around the world without having to install a local database.
 
     Add a polyline that connects the list of points. Other options
     include **color** (any valid HTML color), **weight** (line width in
-    pixels) and **opacity** (between 0 and 1).
+    pixels) and **opacity** (between 0 and 1). Will return 0 if the points
+    are not found and 1 on success.
 
 - $map->onload\_render
 
@@ -119,6 +122,6 @@ features, bug fixes, or anything else then please raise an issue / pull request:
 
 # AUTHORS
 
-Nate Mueller &lt;nate@cs.wisc.edu> - Original Author
+Nate Mueller <nate@cs.wisc.edu> - Original Author
 
-Lee Johnson &lt;leejo@cpan.org> - Maintainer of this fork
+Lee Johnson <leejo@cpan.org> - Maintainer of this fork

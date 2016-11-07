@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 VERSION
 
-0.06
+0.07
 
 =head1 SYNOPSIS
 
@@ -72,7 +72,7 @@ use warnings;
 use Geo::Coder::Google;
 use Template;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
     my ( $class,%opts ) = @_;
@@ -148,7 +148,8 @@ sub _find_center {
 
 =item $map->center($point)
 
-Center the map at a given point.
+Center the map at a given point. Returns 1 on success, 0 if
+the point could not be found.
 
 =cut
 
@@ -219,7 +220,8 @@ sub map_type {
 
 Add a marker to the map at the given point. A point can be a unique
 place name, like an address, or a pair of coordinates passed in as
-an arrayref: [ longitude, latitude ].
+an arrayref: [ longitude, latitude ]. Will return 0 if the point
+is not found and 1 on success.
 
 If B<html> is specified, add a popup info window as well.
 
@@ -242,7 +244,8 @@ sub add_marker {
 
 Add a polyline that connects the list of points. Other options
 include B<color> (any valid HTML color), B<weight> (line width in
-pixels) and B<opacity> (between 0 and 1).
+pixels) and B<opacity> (between 0 and 1). Will return 0 if the points
+are not found and 1 on success.
 
 =cut
 
