@@ -77,19 +77,14 @@ our $VERSION = '0.07';
 sub new {
     my ( $class,%opts ) = @_;
 
-    my $gc;
-
-    if($opts{'api_key'}) {
-        $gc = Geo::Coder::Google->new(apidriver => 3, key => $opts{'api_key'});
-    } else {
-        $gc = Geo::Coder::Google->new(apidriver => 3);
-    }
-
     return bless( {
         %opts,
         points     => [],
         poly_lines => [],
-        geocoder   => $gc
+        geocoder   => Geo::Coder::Google->new(
+            apidriver => 3,
+            ( $opts{'api_key'} ? ( key => $opts{'api_key'} ) : () ),
+        ),
     }, $class );
 }
 
