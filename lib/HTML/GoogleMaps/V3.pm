@@ -81,7 +81,10 @@ sub new {
         %opts,
         points     => [],
         poly_lines => [],
-        geocoder   => Geo::Coder::Google->new,
+        geocoder   => Geo::Coder::Google->new(
+            apidriver => 3,
+            ( $opts{'api_key'} ? ( key => $opts{'api_key'} ) : () ),
+        ),
     }, $class );
 }
 
