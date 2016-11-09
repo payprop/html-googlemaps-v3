@@ -134,6 +134,18 @@ use HTML::GoogleMaps::V3;
    like( $head, qr/key=foo\b/, 'api_key used' );
    like( $div, qr/width.+33%/, 'Correct width for div' );
    like( $div, qr/height.+44em/, 'Correct height for div' );
+   unlike( $div, qr/z-axis/, 'z-axis is not included by default' );
+}
+
+# z-axis
+{
+   my $map = HTML::GoogleMaps::V3->new(z_axis => -1);
+   my ($head, $div) = $map->onload_render;
+
+   like($div, qr/z-axis: -1/, 'z-axis is included');
+   unlike($head, qr/z-axis/, 'z-axis is in the correct place');
+   unlike( $div, qr/width.+11px/, 'width for div not included' );
+   unlike( $div, qr/height.+22px/, 'height for div not included' );
 }
 
 # info window html
