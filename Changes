@@ -1,5 +1,10 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.08 2016-11-09
+        - pass api_key and apidriver to Geo::Coder::Google (GH #9)
+        - fix scrolling of embedded map (GH #10)
+        - thanks to Nigel Horne for the above patches
+
 0.07 2016-11-07
         - add documentation for return values for functions (GH #5)
 
