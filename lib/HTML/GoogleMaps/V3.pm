@@ -60,6 +60,8 @@ Valid options are:
 
 =item width => width (in pixels or using your own unit)
 
+=item z_axis => place on z-axis (e.g. -1 to ensure scrolling works)
+
 =back
 
 =back
@@ -369,8 +371,10 @@ sub onload_render {
     $header =~ s/__KEY__/$key/;
 
     my $map = sprintf(
-        '<div id="%s" style="width: %s; height: %s"></div>',
+        '<div id="%s" style="width: %s; height: %s%s"></div>',
         @{$self}{qw/ id width height / },
+        exists($self->{'z_axis'})
+            ? '; z-axis: ' . $self->{'z_axis'} : ''
     );
 
     my $out;
