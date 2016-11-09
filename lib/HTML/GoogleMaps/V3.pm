@@ -371,7 +371,7 @@ sub onload_render {
     $header =~ s/__KEY__/$key/;
 
     my $map = sprintf(
-        '<div id="%s" style="width: %s; height: %s %s"></div>',
+        '<div id="%s" style="width: %s; height: %s%s"></div>',
         @{$self}{qw/ id width height / },
         exists($self->{'z_axis'})
             ? '; z-axis: ' . $self->{'z_axis'} : ''
