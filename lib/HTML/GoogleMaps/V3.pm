@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 =head1 VERSION
 
-0.08
+0.09
 
 =head1 SYNOPSIS
 
@@ -74,7 +74,7 @@ use warnings;
 use Geo::Coder::Google;
 use Template;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub new {
     my ( $class,%opts ) = @_;

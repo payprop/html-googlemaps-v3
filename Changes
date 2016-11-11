@@ -1,5 +1,9 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.09 2016-11-11
+        - pass sensor=false with api_key (GH #11)
+        - thanks to Nigel Horne for the above patch
+
 0.08 2016-11-09
         - pass api_key and apidriver to Geo::Coder::Google (GH #9)
         - fix scrolling of embedded map (GH #10)
