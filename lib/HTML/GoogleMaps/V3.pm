@@ -85,7 +85,7 @@ sub new {
         poly_lines => [],
         geocoder   => Geo::Coder::Google->new(
             apidriver => 3,
-            ( $opts{'api_key'} ? ( key => $opts{'api_key'} ) : () ),
+            ( $opts{'api_key'} ? ( key => $opts{'api_key'}, sensor => 'false' ) : () ),
         ),
     }, $class );
 }
