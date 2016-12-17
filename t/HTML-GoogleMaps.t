@@ -170,8 +170,10 @@ use HTML::GoogleMaps::V3;
 
 # GitHub issue 12
 {
-		my $place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
-		my $map = HTML::GoogleMaps::V3->new(z_index => -1, api_key => 'foobar');
-		ok($map->center($place));
-		ok($map->add_marker(point => $place, html => $place));
+	my $place = 'dddddddddddddddddddd';
+	my $map = new_ok('HTML::GoogleMaps::V3');
+	is($map->center($place), 0, $place);
+	is($map->add_marker(point => $place, html => $place), 0, $place);
+	$place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
+	isnt($map->add_marker(point => $place, html => $place), 0, $place);
 }
