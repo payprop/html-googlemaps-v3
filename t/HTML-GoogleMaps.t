@@ -134,16 +134,16 @@ use HTML::GoogleMaps::V3;
    like( $head, qr/key=foo\b/, 'api_key used' );
    like( $div, qr/width.+33%/, 'Correct width for div' );
    like( $div, qr/height.+44em/, 'Correct height for div' );
-   unlike( $div, qr/z-axis/, 'z-axis is not included by default' );
+   unlike( $div, qr/z-index/, 'z-index is not included by default' );
 }
 
-# z-axis
+# z-index
 {
-   my $map = HTML::GoogleMaps::V3->new(z_axis => -1);
+   my $map = HTML::GoogleMaps::V3->new(z_index => -1);
    my ($head, $div) = $map->onload_render;
 
-   like($div, qr/z-axis: -1/, 'z-axis is included');
-   unlike($head, qr/z-axis/, 'z-axis is in the correct place');
+   like($div, qr/z-index: -1/, 'z-index is included');
+   unlike($head, qr/z-index/, 'z-index is in the correct place');
    unlike( $div, qr/width.+11px/, 'width for div not included' );
    unlike( $div, qr/height.+22px/, 'height for div not included' );
 }
@@ -166,4 +166,12 @@ use HTML::GoogleMaps::V3;
 
     $map->{points} = [ { point => [ -100,-100 ] } ];
     ok( $map->_find_center,'_find_center' );
+}
+
+# GitHub issue 12
+{
+		my $place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
+		my $map = HTML::GoogleMaps::V3->new(z_index => -1, api_key => 'foobar');
+		ok($map->center($place));
+		ok($map->add_marker(point => $place, html => $place));
 }
