@@ -176,4 +176,5 @@ use HTML::GoogleMaps::V3;
 	is($map->add_marker(point => $place, html => $place), 0, $place);
 	$place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
 	isnt($map->add_marker(point => $place, html => $place), 0, $place);
+	isnt($map->add_marker(point => $place, html => $place), 0, $place);
 }
