@@ -1,10 +1,9 @@
-#!/usr/bin/perl -w
+#!perl -w
 
 use Test::More 'no_plan';
 use strict;
 
 BEGIN { use_ok('HTML::GoogleMaps::V3') }
-use HTML::GoogleMaps::V3;
 
 # Autocentering
 {
@@ -168,13 +167,22 @@ use HTML::GoogleMaps::V3;
     ok( $map->_find_center,'_find_center' );
 }
 
-# GitHub issue 12
-{
-	my $place = 'dddddddddddddddddddd';
-	my $map = new_ok('HTML::GoogleMaps::V3');
-	is($map->center($place), 0, $place);
-	is($map->add_marker(point => $place, html => $place), 0, $place);
-	$place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
-	isnt($map->add_marker(point => $place, html => $place), 0, $place);
-	isnt($map->add_marker(point => $place, html => $place), 0, $place);
+# Github issue 12
+SKIP: {
+    eval {
+    	require Geo::Coder::GooglePlaces;
+
+    	Geo::Coder::GooglePlaces->import();
+    };
+
+    if($@) {
+    	diag('Geo::Coder::GooglePlaces required for some tests');
+    	skip 'Geo::Coder::GooglePlaces not installed';
+    } else {
+    	diag("Using Geo::Coder::GooglePlaces $Geo::Coder::GooglePlaces::VERSION");
+    	my $place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
+    	my $map = new_ok('HTML::GoogleMaps::V3' => [ geocoder => new_ok('Geo::Coder::GooglePlaces::V3') ] );
+    	is($map->center($place), 1, $place);
+    	is($map->add_marker(point => $place, html => $place), 1, $place);
+    }
 }
