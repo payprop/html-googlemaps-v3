@@ -178,11 +178,14 @@ SKIP: {
     if($@) {
     	diag('Geo::Coder::GooglePlaces required for some tests');
     	skip 'Geo::Coder::GooglePlaces not installed';
-    } else {
+    } elsif(my $key = $ENV{'GMAP_KEY'}) {
     	diag("Using Geo::Coder::GooglePlaces $Geo::Coder::GooglePlaces::VERSION");
     	my $place = 'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England';
-    	my $map = new_ok('HTML::GoogleMaps::V3' => [ geocoder => new_ok('Geo::Coder::GooglePlaces::V3') ] );
+	my $geocoder = new_ok('Geo::Coder::GooglePlaces::V3' => [ key => $key]);
+    	my $map = new_ok('HTML::GoogleMaps::V3' => [ geocoder => $geocoder ]);
     	is($map->center($place), 1, $place);
     	is($map->add_marker(point => $place, html => $place), 1, $place);
+    } else {
+	skip 'Not running live tests. Set $ENV{GMAP_KEY} to your API key to enable';
     }
 }

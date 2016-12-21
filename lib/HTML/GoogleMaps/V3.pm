@@ -71,7 +71,6 @@ Valid options are:
 use strict;
 use warnings;
 
-use Geo::Coder::Google;
 use Template;
 
 our $VERSION = '0.09';
@@ -79,15 +78,20 @@ our $VERSION = '0.09';
 sub new {
     my ( $class,%opts ) = @_;
 
-    return bless( {
-        %opts,
-        points     => [],
-        poly_lines => [],
-        geocoder   => Geo::Coder::Google->new(
+    unless($opts{geocoder}) {
+	require Geo::Coder::Google;
+	Geo::Coder::Google->import();
+
+        $opts{'geocoder'} = Geo::Coder::Google->new(
             apidriver => 3,
             ( $opts{'api_key'} ? ( key => $opts{'api_key'}, sensor => 'false' ) : () ),
-        ),
-    }, $class );
+	);
+    }
+
+    $opts{'points'} = [];
+    $opts{'poly_lines'} = [];
+
+    return bless \%opts, $class;
 }
 
 sub _text_to_point {
