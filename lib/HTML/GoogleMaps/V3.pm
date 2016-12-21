@@ -62,6 +62,8 @@ Valid options are:
 
 =item z_index => place on z-axis (e.g. -1 to ensure scrolling works)
 
+=item geocoder => an object such as Geo::Coder::Google
+
 =back
 
 =back
