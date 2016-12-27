@@ -368,7 +368,7 @@ sub onload_render {
     $self->{height} .= 'px' if $self->{height} =~ m/^\d+$/;
 
     my $header = '<script src="https://maps.googleapis.com/maps/api/js__KEY__"'
-        . ' aync defer type="text/javascript"></script>'
+        . ' async defer type="text/javascript"></script>'
     ;
 
     my $key = $self->{api_key}
