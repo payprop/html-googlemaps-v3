@@ -80,14 +80,14 @@ our $VERSION = '0.09';
 sub new {
     my ( $class,%opts ) = @_;
 
-    unless($opts{geocoder}) {
-	require Geo::Coder::Google;
-	Geo::Coder::Google->import();
+    if ( !defined($opts{geocoder} ) ) {
+        require Geo::Coder::Google;
+        Geo::Coder::Google->import();
 
         $opts{'geocoder'} = Geo::Coder::Google->new(
             apidriver => 3,
             ( $opts{'api_key'} ? ( key => $opts{'api_key'}, sensor => 'false' ) : () ),
-	);
+    );
     }
 
     $opts{'points'} = [];
