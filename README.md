@@ -10,7 +10,7 @@ HTML::GoogleMaps::V3 - a simple wrapper around the Google Maps API
 
 # VERSION
 
-0.09
+0.10
 
 # SYNOPSIS
 
@@ -53,7 +53,8 @@ up locations around the world without having to install a local database.
     - api\_key => key (your Google Maps API key)
     - height => height (in pixels or using your own unit)
     - width => width (in pixels or using your own unit)
-    - z\_axis => place on z-axis (e.g. -1 to ensure scrolling works)
+    - z\_index => place on z-axis (e.g. -1 to ensure scrolling works)
+    - geocoder => an object such as Geo::Coder::Google
 
 # METHODS
 
@@ -123,8 +124,8 @@ features, bug fixes, or anything else then please raise an issue / pull request:
 
 # AUTHORS
 
-Nate Mueller <nate@cs.wisc.edu> - Original Author
+Nate Mueller &lt;nate@cs.wisc.edu> - Original Author
 
-Lee Johnson <leejo@cpan.org> - Maintainer of this fork
+Lee Johnson &lt;leejo@cpan.org> - Maintainer of this fork
 
 Nigel Horne - Contributor of several patches

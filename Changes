@@ -1,5 +1,10 @@
 Revision history for HTML::GoogleMaps::V3
 
+0.10 2017-01-01
+        - fix various typos in the module (GH #12)
+        - allow dependency injection of the GeoCoder module (GH #14)
+        - thanks to Nigel Horne for the above patch
+
 0.09 2016-11-11
         - pass sensor=false with api_key (GH #11)
         - thanks to Nigel Horne for the above patch
