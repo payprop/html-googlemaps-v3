@@ -60,7 +60,9 @@ Valid options are:
 
 =item width => width (in pixels or using your own unit)
 
-=item z_axis => place on z-axis (e.g. -1 to ensure scrolling works)
+=item z_index => place on z-axis (e.g. -1 to ensure scrolling works)
+
+=item geocoder => an object such as Geo::Coder::Google
 
 =back
 
@@ -71,7 +73,6 @@ Valid options are:
 use strict;
 use warnings;
 
-use Geo::Coder::Google;
 use Template;
 
 our $VERSION = '0.09';
@@ -79,15 +80,20 @@ our $VERSION = '0.09';
 sub new {
     my ( $class,%opts ) = @_;
 
-    return bless( {
-        %opts,
-        points     => [],
-        poly_lines => [],
-        geocoder   => Geo::Coder::Google->new(
+    if ( !defined($opts{geocoder} ) ) {
+        require Geo::Coder::Google;
+        Geo::Coder::Google->import();
+
+        $opts{'geocoder'} = Geo::Coder::Google->new(
             apidriver => 3,
             ( $opts{'api_key'} ? ( key => $opts{'api_key'}, sensor => 'false' ) : () ),
-        ),
-    }, $class );
+    );
+    }
+
+    $opts{'points'} = [];
+    $opts{'poly_lines'} = [];
+
+    return bless \%opts, $class;
 }
 
 sub _text_to_point {
@@ -362,7 +368,7 @@ sub onload_render {
     $self->{height} .= 'px' if $self->{height} =~ m/^\d+$/;
 
     my $header = '<script src="https://maps.googleapis.com/maps/api/js__KEY__"'
-        . ' aync defer type="text/javascript"></script>'
+        . ' async defer type="text/javascript"></script>'
     ;
 
     my $key = $self->{api_key}
@@ -373,8 +379,8 @@ sub onload_render {
     my $map = sprintf(
         '<div id="%s" style="width: %s; height: %s%s"></div>',
         @{$self}{qw/ id width height / },
-        exists($self->{'z_axis'})
-            ? '; z-axis: ' . $self->{'z_axis'} : ''
+        exists($self->{'z_index'})
+            ? '; z-index: ' . $self->{'z_index'} : ''
     );
 
     my $out;
