@@ -110,10 +110,12 @@ sub _text_to_point {
                 return 0;
             }
 
-            return [
-                $location->{geometry}{location}{lat},
-                $location->{geometry}{location}{lng},
-            ];
+            if(defined($location->{geometry}{location}{lat}) && defined($location->{geometry}{location}{lng})) {
+                return [
+                    $location->{geometry}{location}{lat},
+                    $location->{geometry}{location}{lng},
+                ];
+            }
         }
     }
 
