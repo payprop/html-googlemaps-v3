@@ -77,6 +77,15 @@ use Template;
 
 our $VERSION = '0.15';
 
+our $MAP_TYPES = {
+    normal         => 'NORMAL',
+    map_type       => 'NORMAL',
+    satellite_type => 'SATELLITE',
+    satellite      => 'SATELLITE',
+    hybrid         => 'HYBRID',
+    road           => 'ROADMAP',
+};
+
 sub new {
     my ( $class,%opts ) = @_;
 
@@ -223,14 +232,7 @@ Set the map type. Either B<normal>, B<satellite>, B<road>, or B<hybrid>.
 sub map_type {
     my ( $self,$type ) = @_;
 
-    $type = {
-        normal         => 'NORMAL',
-        map_type       => 'NORMAL',
-        satellite_type => 'SATELLITE',
-        satellite      => 'SATELLITE',
-        hybrid         => 'HYBRID',
-        road           => 'ROADMAP',
-    }->{ $type } || return 0;
+    $type = $MAP_TYPES->{ $type } || return 0;
 
     $self->{type} = $type;
 }
