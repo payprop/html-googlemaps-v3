@@ -288,7 +288,10 @@ sub _js_template {
 
 function html_googlemaps_initialize() {
 
-    myCenterLatLng = new google.maps.LatLng({lat: [% center.0 %], lng: [% center.1 %]});
+    [% # Github issue 22 %]
+    [% IF center %]
+	myCenterLatLng = new google.maps.LatLng({lat: [% center.0 %], lng: [% center.1 %]});
+    [% END %]
 
     // key map controls
     var map = new google.maps.Map(document.getElementById('[% id %]'), {
